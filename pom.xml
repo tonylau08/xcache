@@ -27,11 +27,8 @@
 		<spring-data-redis.version>1.7.6.RELEASE</spring-data-redis.version>
 		<junit.version>4.12</junit.version>
 		<slf4j.version>1.7.21</slf4j.version>
-		<jedis.version>2.9.0</jedis.version>
-		<kryo.version>4.0.0</kryo.version>
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
 		<java.version>1.8</java.version>
-		<maven-resources-plugin.version>2.4</maven-resources-plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
