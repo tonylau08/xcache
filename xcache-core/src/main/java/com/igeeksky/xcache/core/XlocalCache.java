@@ -182,8 +182,10 @@ public class XlocalCache implements Cache {
 		
 		if(this.cleanExpireElements()){
 			if(this.lru()){
-				System.out.println("LocalCache:" + name + ", maxElementsNum is too small, please reset it");
-				this.clear();
+				if(this.randomClean()){
+					System.out.println("LocalCache:" + name + ", maxElementsNum is too small, please reset it");
+					this.clear();
+				}
 			}
 		}
 		
@@ -243,6 +245,20 @@ public class XlocalCache implements Cache {
 						store.remove(entry.getKey());
 					}
 				}
+			}
+		}
+		return (store.size() > warnElementsNum);
+	}
+	
+	private boolean randomClean(){
+		int size = store.size();
+		Iterator<Entry<Object, LocalValueWrapper>> it = store.entrySet().iterator();
+		while(it.hasNext() && size > initialCapacity){
+			Entry<Object, LocalValueWrapper> entry = it.next();
+			if(null != entry){
+				it.remove();
+				timeStore.remove(entry.getKey());
+				size--;
 			}
 		}
 		return (store.size() > warnElementsNum);
