@@ -68,14 +68,11 @@ public class Xcache implements Cache {
 	public ValueWrapper get(Object key) {
 		// 1.获取本地缓存版本
 		CacheElement localCacheElement = localCache.get(key, CacheElement.class);
-		System.out.println("GET:1");
 		
 		// 2.如果本地缓存为空，获取远程缓存保存到本地并返回值
 		if(null == localCacheElement){
-			System.out.println("GET:2");
 			ValueWrapper wrapper = remoteCache.get(key);
 			if(null != wrapper){
-				System.out.println("GET:3");
 				Object remoteVersionObj = redisOperations.opsForHash().get(VERSION_KEY, key);
 				Long remoteVersion;
 				if(null == remoteVersionObj){
@@ -95,14 +92,12 @@ public class Xcache implements Cache {
 		// 3.本地缓存不为空：比较远程缓存版本
 		Long localVersion = localCacheElement.getVersion();
 		Object remoteVersionObj = redisOperations.opsForHash().get(VERSION_KEY, key);
-		System.out.println("GET:4");
 		if(null == remoteVersionObj){
 			return null;
 		}
 		
 		// 4.版本相同：返回本地缓存
 		Long remoteVersion = Long.valueOf(remoteVersionObj.toString());
-		System.out.println("GET:5");
 		if(localVersion.equals(remoteVersion)){
 			return localCacheElement.getValueWrapper();
 		}
@@ -110,12 +105,10 @@ public class Xcache implements Cache {
 		
 		// 5.版本不同：返回远程缓存
 		ValueWrapper wrapper = remoteCache.get(key);
-		System.out.println("GET:6");
 		if(null != wrapper){
 			localCacheElement.setVersion(remoteVersion).setValueWrapper(wrapper);
 			localCache.put(key, localCacheElement);
 		}
-		System.out.println("GET:7");
 		return wrapper;
 	}
 

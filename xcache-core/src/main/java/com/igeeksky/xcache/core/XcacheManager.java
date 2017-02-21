@@ -34,15 +34,15 @@ public class XcacheManager implements CacheManager {
 	
 	private ConcurrentHashMap<String, Cache> cacheMap = new ConcurrentHashMap<String, Cache>(16);
 	
-	private RedisCacheManager remoteCacheManager;
+	private CacheManager remoteCacheManager;
 	
-	private XlocalCacheManager localCacheManager;
+	private CacheManager localCacheManager;
 	
 	private RedisOperations<String ,Long> redisOperations;
 	
 	private boolean dynamic = true;
 	
-	public XcacheManager(RedisCacheManager remoteCacheManager, XlocalCacheManager localCacheManager, RedisOperations<String ,Long> redisOperations) {
+	public XcacheManager(CacheManager remoteCacheManager, CacheManager localCacheManager, RedisOperations<String ,Long> redisOperations) {
 		this.remoteCacheManager = remoteCacheManager;
 		this.localCacheManager = localCacheManager;
 		this.redisOperations = redisOperations;

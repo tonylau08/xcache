@@ -56,7 +56,7 @@ public class XlocalCacheConfig {
 
 	@Override
 	public String toString() {
-		return "ClairLocalCacheArgs [name=" + name + ", aliveTime=" + aliveTime + ", singleStoreMaxElements="
+		return "XlocalCacheConfig [name=" + name + ", aliveTime=" + aliveTime + ", singleStoreMaxElements="
 				+ singleStoreMaxElements + "]";
 	}
 	

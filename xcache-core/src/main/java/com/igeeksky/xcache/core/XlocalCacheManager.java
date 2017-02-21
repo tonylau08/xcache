@@ -30,6 +30,8 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 /**
+ * <b>LocalCacheManager</b><br>
+ * create and manager all local cache
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
  * @createTime 2017-02-21 18:39:12
@@ -38,9 +40,10 @@ public class XlocalCacheManager implements CacheManager {
 	
 	private ConcurrentHashMap<String, Cache> cacheMap = new ConcurrentHashMap<String, Cache>(16);
 	
-	private long aliveTime = 3600;
+	/** second */
+	private long aliveTime;
 	
-	private int singleStoreMaxElements = 1024;
+	private int singleStoreMaxElements;
 	
 	private boolean dynamic = true;
 	
@@ -48,12 +51,17 @@ public class XlocalCacheManager implements CacheManager {
 	
 	private final XcacheManagerCleanner cleaner;
 	
-	public XlocalCacheManager(long aliveTime, int singleStoreMaxElements) {
+	/**
+	 * @param aliveTime element time to remove(TimeUnit.SECONDS)
+	 * @param singleStoreMaxElements  max elements in cache
+	 * @param cacheCleanPeriod  time to excute cache cleaner(TimeUnit.SECONDS)
+	 */
+	public XlocalCacheManager(long aliveTime, int singleStoreMaxElements, int cacheCleanPeriod) {
 		this.aliveTime = aliveTime;
 		this.singleStoreMaxElements = singleStoreMaxElements;
 		this.executor = Executors.newScheduledThreadPool(1);
 		this.cleaner = new XcacheManagerCleanner(this);
-		this.executor.scheduleWithFixedDelay(cleaner, 20, 600, TimeUnit.SECONDS);
+		this.executor.scheduleWithFixedDelay(cleaner, 20, cacheCleanPeriod, TimeUnit.SECONDS);
 	}
 	
 	public void setInitCaches(Set<XlocalCacheConfig> initCaches){
@@ -78,18 +86,10 @@ public class XlocalCacheManager implements CacheManager {
 		return aliveTime;
 	}
 
-	public void setAliveTime(long aliveTime) {
-		this.aliveTime = aliveTime;
-	}
-
 	public int getSingleStoreMaxElements() {
 		return singleStoreMaxElements;
 	}
-
-	public void setSingleStoreMaxElements(int singleStoreMaxElements) {
-		this.singleStoreMaxElements = singleStoreMaxElements;
-	}
-
+	
 	@Override
 	public Cache getCache(String name) {
 		Cache cache = this.cacheMap.get(name);

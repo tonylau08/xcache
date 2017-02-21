@@ -22,7 +22,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.util.Assert;
 
@@ -36,6 +40,8 @@ import com.igeeksky.xcache.support.CacheKey;
  * @createTime 2017-02-21 18:38:43
  */
 public class XlocalCache implements Cache {
+	
+	private Logger logger = LoggerFactory.getLogger(XlocalCache.class);
 
 	private final ConcurrentMap<Object, LocalValueWrapper> store;
 	
@@ -61,7 +67,9 @@ public class XlocalCache implements Cache {
 	
 	private final XLocalCacheCleanner cleanner;
 	
-	private volatile boolean isCleaning = false; 
+	private volatile boolean isCleaning = false;
+	
+	private final Lock lock = new ReentrantLock();
 	
 	XlocalCache(CacheKey cacheKey, int maxElementsNum, ScheduledExecutorService executor){
 		this(cacheKey.getCacheName(), cacheKey.getAliveTime(), maxElementsNum, executor);
@@ -69,7 +77,7 @@ public class XlocalCache implements Cache {
 	
 	XlocalCache(String name, long aliveTime, int maxElementsNum, ScheduledExecutorService executor) {
 		this.name = name;
-		this.aliveTime = aliveTime;
+		this.aliveTime = aliveTime * 1000;
 		this.maxElementsNum = maxElementsNum > 256 ? maxElementsNum : 256;
 		this.warnElementsNum = maxElementsNum / 5 * 4;
 		this.initialCapacity =  maxElementsNum / 2;
@@ -120,15 +128,6 @@ public class XlocalCache implements Cache {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T get(Object key, Class<T> type) {
-		System.out.println(getCurrElementsNum());
-		Iterator<Entry<Object, LocalValueWrapper>> it = store.entrySet().iterator();
-		while(it.hasNext()){
-			Entry<Object, LocalValueWrapper> entry = it.next();
-			LocalValueWrapper wrapper = entry.getValue();
-			System.out.println(entry.getKey().toString());
-			System.out.println(wrapper.get().toString());
-		}
-		
 		ValueWrapper value = get(key);
 		if(value == null) return null;
 		
@@ -159,12 +158,21 @@ public class XlocalCache implements Cache {
 
 	private void computeAndClean() {
 		if(currElementsNum.incrementAndGet() > warnElementsNum && !isCleaning){
+			isCleaning = true;
 			executor.submit(cleanner);
+			/*try{
+				lock.lock();
+				if(!isCleaning){
+					
+				}
+			} finally{
+				lock.unlock();
+			}*/
 		}
 	}
 	
 	private LocalValueWrapper toValueWrapper(Object value) {
-		return new LocalValueWrapper(System.currentTimeMillis()+aliveTime, value);
+		return new LocalValueWrapper(TimeGen.INSTANCE.currTime()+aliveTime, value);
 	}
 
 	@Override
@@ -189,39 +197,42 @@ public class XlocalCache implements Cache {
 	
 	/** 清理过期数据和不活跃数据 */
 	void clean(){
-		if(isCleaning){
-			return;
-		}
-		isCleaning = true;
+		logger.info(name + "_localCacheClean start");
+		try{
+			isCleaning = true;
 		
-		int size = store.size();
-		if(size < warnElementsNum){
-			currElementsNum.set(size);
-			isCleaning = false;
-			return;
-		}
-		
-		if(this.cleanExpireElements()){
-			if(this.lru()){
-				if(this.randomClean()){
-					System.out.println("LocalCache:" + name + ", maxElementsNum is too small, please reset it");
-					this.clear();
+			int size = store.size();
+			logger.info(name + "_size:" + size);
+			if(size < warnElementsNum){
+				currElementsNum.set(size);
+				isCleaning = false;
+				return;
+			}
+			
+			if(this.cleanExpireElements()){
+				if(this.lru()){
+					if(this.randomClean()){
+						this.clear();
+					}
 				}
 			}
+			
+			currElementsNum.set(store.size());
+		}finally{
+			isCleaning = false;
+			logger.info(name + "_localCacheClean end");
 		}
-		
-		currElementsNum.set(store.size());
-		isCleaning = false;
 	}
 	
 	/** 获取平均访问次数的一半 */
 	private int getHalfAvgTimes(){
 		Iterator<Entry<Object, VisitRecord>> it = timeStore.entrySet().iterator();
-		int index = 0;
+		int index = 1;
 		int totalTimes = 0;
 		while(it.hasNext() && index < 10000){
 			Entry<Object, VisitRecord> entry = it.next();
 			totalTimes += entry.getValue().visitTimes;
+			index++;
 		}
 		int avg = totalTimes / index / 2;
 		return avg > 2 ? avg : 2;
@@ -234,24 +245,44 @@ public class XlocalCache implements Cache {
 	private boolean cleanExpireElements(){
 		Iterator<Entry<Object, LocalValueWrapper>> it = store.entrySet().iterator();
 		long currentTime = System.currentTimeMillis();
+		long perridTime = aliveTime >> 2;
+		
 		while(it.hasNext()){
 			Entry<Object, LocalValueWrapper> entry = it.next();
 			LocalValueWrapper wrapper;
 			if(null != entry && null != (wrapper = entry.getValue())){
+				//如果已过期，删除
+				long expireTime = wrapper.getExpireTime();
 				if(wrapper.getExpireTime() < currentTime){
 					it.remove();
 					timeStore.remove(entry.getKey());
+					currElementsNum.decrementAndGet();
 				}
+				
+				//如果超过存活时间的1/4无访问记录，删除
+				Object key = entry.getKey();
+				if(null != key){
+					VisitRecord record = timeStore.get(key);
+					if(null == record){
+						if((expireTime - aliveTime + perridTime) < currentTime){
+							it.remove();
+							timeStore.remove(key);
+							currElementsNum.decrementAndGet();
+						}
+					}
+				}
+				
 			}
 			
 		}
+		logger.info(name + "_cleanExpireElements() end StoreSize:" + store.size());
 		return (store.size() > warnElementsNum);
 	}
 	
 	private boolean lru(){
 		Iterator<Entry<Object, VisitRecord>> it = timeStore.entrySet().iterator();
 		long currentTime = System.currentTimeMillis();
-		long perridTime = aliveTime / 4;
+		long perridTime = aliveTime  >> 2;
 		int halfAvgTimes = getHalfAvgTimes();
 		
 		while(it.hasNext()){
@@ -264,10 +295,12 @@ public class XlocalCache implements Cache {
 					if(record.visitTimes < halfAvgTimes){
 						it.remove();
 						store.remove(entry.getKey());
+						currElementsNum.decrementAndGet();
 					}
 				}
 			}
 		}
+		logger.info(name + "_lru() end StoreSize:" + store.size());
 		return (store.size() > warnElementsNum);
 	}
 	
@@ -279,9 +312,11 @@ public class XlocalCache implements Cache {
 			if(null != entry){
 				it.remove();
 				timeStore.remove(entry.getKey());
+				currElementsNum.decrementAndGet();
 				size--;
 			}
 		}
+		logger.info(name + "_randomClean() end StoreSize:" + store.size());
 		return (store.size() > warnElementsNum);
 	}
 	
