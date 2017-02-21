@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+	<groupId>com.igeeksky</groupId>
+	<artifactId>xcache</artifactId>
+	<version>0.9.9-alpha</version>
+	</parent>
+	<artifactId>xcache-core</artifactId>
+	<name>xcache-core</name>
+	<description>xcache for spring</description>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>${spring-data-redis.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.igeeksky</groupId>
+			<artifactId>dcafe-snowflake</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+	</dependencies>
+</project>
