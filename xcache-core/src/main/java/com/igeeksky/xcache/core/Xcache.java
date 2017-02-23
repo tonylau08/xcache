@@ -18,7 +18,6 @@ package com.igeeksky.xcache.core;
 
 import org.springframework.cache.Cache;
 import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.util.Assert;
 
 import com.igeeksky.xcache.support.CacheKey;
 
@@ -42,10 +41,10 @@ public class Xcache implements Cache {
 	
 	private final String VERSION_KEY;
 	
-	Xcache(String name, Cache remoteCache, Cache localCache, RedisOperations<String, Long> redisOperations){
+	Xcache(String name, Cache cache, Cache localCache, RedisOperations<String, Long> redisOperations){
 		this.name = name;
 		this.VERSION_KEY = name + versionDelimiter;
-		this.remoteCache = remoteCache;
+		this.remoteCache = cache;
 		this.localCache = localCache;
 		this.redisOperations = redisOperations;
 	}
@@ -93,6 +92,7 @@ public class Xcache implements Cache {
 		Long localVersion = localCacheElement.getVersion();
 		Object remoteVersionObj = redisOperations.opsForHash().get(VERSION_KEY, key);
 		if(null == remoteVersionObj){
+			localCache.evict(key);
 			return null;
 		}
 		
@@ -121,6 +121,8 @@ public class Xcache implements Cache {
 
 	@Override
 	public void put(Object key, Object value) {
+		//Long remoteVersion = remoteCache.putAsVersion(key, value);
+		
 		// 1.保存到远程组件缓存
 		remoteCache.put(key, value);
 		
@@ -130,7 +132,7 @@ public class Xcache implements Cache {
 			return;
 		}
 		
-		// 2.保存版本号
+		// 3.保存版本号
 		Long remoteVersion = redisOperations.opsForHash().increment(VERSION_KEY, key, 1l);
 		
 		// 3.保存本地组件缓存
@@ -164,56 +166,21 @@ public class Xcache implements Cache {
 
 	@Override
 	public void evict(Object key) {
-		// 1.删除本地缓存及版本号
-		localCache.evict(key);
+		// 1.删除远程缓存版本号
+		redisOperations.opsForHash().delete(VERSION_KEY, key);
 		
 		// 2.删除远程缓存
 		remoteCache.evict(key);
 		
-		// 3.删除远程缓存版本号
-		redisOperations.opsForHash().delete(VERSION_KEY, key);
-		
+		// 3.删除本地缓存及版本号
+		localCache.evict(key);
 	}
 
 	@Override
 	public void clear() {
-		localCache.clear();
-		remoteCache.clear();
 		redisOperations.delete(VERSION_KEY);
+		remoteCache.clear();
+		localCache.clear();
 	}
 	
-	private static class CacheElement{
-		
-		private Long version;
-		
-		private ValueWrapper valueWrapper;
-		
-		public CacheElement(Long version, ValueWrapper valueWrapper) {
-			Assert.notNull(version, "version must not be null");
-			Assert.notNull(valueWrapper, "valueWrapper must not be null");
-			this.version = version;
-			this.valueWrapper = valueWrapper;
-		}
-
-		public long getVersion() {
-			return version;
-		}
-
-		public CacheElement setVersion(Long version) {
-			Assert.notNull(version, "version must not be null");
-			this.version = version;
-			return this;
-		}
-
-		public ValueWrapper getValueWrapper() {
-			return valueWrapper;
-		}
-
-		public void setValueWrapper(ValueWrapper valueWrapper) {
-			Assert.notNull(valueWrapper, "valueWrapper must not be null");
-			this.valueWrapper = valueWrapper;
-		}
-
-	}
-
 }
