@@ -13,18 +13,21 @@
 	http://www.springframework.org/schema/cache/spring-cache.xsd">
 
 	<context:annotation-config />
-	<context:component-scan base-package="com.igeeksky.xcache.test"/>
+	<!-- <context:component-scan base-package="com.igeeksky.xcache.test"/> -->
 	
 	<bean id="lettuceConnectionFactory" class="org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory"/>
 	<bean id="keySerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer"/>
+	<bean id="fstSerializer" class="com.igeeksky.xcache.core.FSTSerializer"/>
 	<bean id="genericToStringSerializer" class="org.springframework.data.redis.serializer.GenericToStringSerializer" c:type="java.lang.Long"/>
+	
 	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
 		<property name="connectionFactory" ref="lettuceConnectionFactory"/>
-		<property name="keySerializer" ref="keySerializer"/>
-		<property name="hashKeySerializer" ref="keySerializer"/>
-		<property name="hashValueSerializer" ref="genericToStringSerializer"/>
+		<property name="keySerializer" ref="fstSerializer"/>
+		<property name="valueSerializer" ref="fstSerializer"/>
+		<property name="hashKeySerializer" ref="fstSerializer"/>
+		<property name="hashValueSerializer" ref="fstSerializer"/>
 	</bean>
 	
-	<import resource="classpath*:spring-cache.xml"/>
+	<!-- <import resource="classpath*:spring-cache.xml"/> -->
 	
 </beans>
