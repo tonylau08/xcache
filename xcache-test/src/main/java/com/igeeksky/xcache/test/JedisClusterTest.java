@@ -55,33 +55,28 @@ public class JedisClusterTest {
 	
 	@Test
 	public void testBatchDel(){
-		int length =10000;
+		int length =1000;
 		byte[][] keys = new byte[length][];
 		for(int i=0; i< length; i++){
 			keys[i] = metadata.getFullIdKeyBytes(i);
 		}
-		Long num = cluster.del(keys);
-		System.out.println(num);
+		System.out.println(cluster.del(keys));
 	}
 	
 	@Test
 	public void testDel(){
-		long a = System.currentTimeMillis();
-		int length =100000;
+		int length =1000;
 		for(int i=0; i< length; i++){
 			cluster.del(("~C_BOOK~I:"+ i).getBytes());
 		}
-		System.out.println(System.currentTimeMillis() - a);
 	}
 	
 	@Test
 	public void testSet(){
-		long a = System.currentTimeMillis();
 		int length =1000;
 		for(int i=0; i< length; i++){
 			cluster.set(metadata.getFullIdKeyBytes(i), "".getBytes());
 		}
-		System.out.println(System.currentTimeMillis() - a);
 	}
 	
 	@Test
@@ -136,8 +131,8 @@ public class JedisClusterTest {
 	@Test
 	public void testJedisClusterDelKeys(){
 		
-		byte[][] keys = new byte[200000][];
-		for(int i=0; i<200000;i++){
+		byte[][] keys = new byte[2000][];
+		for(int i=0; i<2000;i++){
 			keys[i] = ("a"+i).getBytes();
 		}
 		long s = cluster.del(keys);
@@ -147,7 +142,7 @@ public class JedisClusterTest {
 	@Test
 	public void testJedisClusterSet(){
 		
-		for(int i=0; i<200000;i++){
+		for(int i=0; i<2000;i++){
 			cluster.set(("a"+i).getBytes(), "ddddd".getBytes());
 		}
 	}

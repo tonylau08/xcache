@@ -114,15 +114,16 @@ public class JedisClusterHandler {
 			try {
 				jedis = new Jedis(myelfHost, myselfPort);
 				String clusterNodes = jedis.clusterNodes();
-				if(initRedisNodes(myelfHost, myselfPort, clusterNodes)){
+				if(!initRedisNodes(myelfHost, myselfPort, clusterNodes)){
 					continue;
 				}
 				initSlotAndPool();
 				removeInvaidPool();
-				refreshStatus = true;
 				allRedirects.set(0);
+				refreshStatus = true;
 				break;
 			} catch (Exception e) {
+				logger.error("init jedis pool error:	" + e.getMessage(), e);
 				continue;
 			} finally {
 				if(null != jedis) jedis.close();
@@ -167,8 +168,8 @@ public class JedisClusterHandler {
 						jedis = new Jedis(redisNode.getHost(), redisNode.getPort());
 						jedis.ping();
 					} catch (JedisConnectionException e) {
-						logger.warn("Jedis connection error, because redisNode's ip:port is " + redisNode.getIpPort()
-								+ ", redisNode is used real ip:port: " + myselfHost + ":" + myselfPort + " now");
+						logger.warn("Jedis host error, RedisServer return current connection's ip:port is " + redisNode.getIpPort()
+								+ ", redisNode change to used real ip:port: " + myselfHost + ":" + myselfPort + " now");
 						redisNode.setHost(myselfHost);
 						redisNode.setPort(myselfPort);
 					} finally {
@@ -202,7 +203,6 @@ public class JedisClusterHandler {
 				}
 			}
 		}
-		redisNodesMap.clear();
 		redisNodesMap = ipPortMap;
 		return true;
 	}
