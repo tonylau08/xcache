@@ -23,7 +23,7 @@ import org.springframework.cache.Cache;
 /**
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-27 16:18:03
+ * @createTime 2017-02-27 19:18:03
  */
 public interface Xcache extends Cache {
 

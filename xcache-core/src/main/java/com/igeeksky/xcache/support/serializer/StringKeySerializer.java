@@ -31,7 +31,7 @@ import com.igeeksky.xcache.util.StringUtils;
 /**
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-03-06 08:41:27
+ * @createTime 2017-03-05 08:41:27
  */
 public class StringKeySerializer implements KeySerializer<Object, Object> {
 

@@ -19,7 +19,7 @@ package com.igeeksky.xcache.support.serializer;
 /**
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-03-06 08:38:30
+ * @createTime 2017-03-05 08:38:30
  */
 public interface Serializer<V, E> {
 	

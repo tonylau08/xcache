@@ -27,7 +27,7 @@ import com.igeeksky.xcache.support.KeyValue;
 /**
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-23 15:12:15
+ * @createTime 2017-02-23 01:12:15
  */
 public interface RemoteCache extends Cache {
 

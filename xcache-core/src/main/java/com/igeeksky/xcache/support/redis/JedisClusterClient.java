@@ -47,7 +47,7 @@ import redis.clients.jedis.exceptions.JedisNoScriptException;
 /**
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-03-01 17:50:04
+ * @createTime 2017-03-01 18:50:04
  */
 public class JedisClusterClient implements RedisClusterClient {
 	

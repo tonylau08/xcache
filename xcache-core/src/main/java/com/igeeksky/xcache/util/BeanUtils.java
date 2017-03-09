@@ -28,7 +28,6 @@ import org.springframework.util.Assert;
  * @blog: https://my.oschina.net/xcafe
  * @createTime 2017-03-02 18:28:37
  */
-
 public class BeanUtils {
 	
 	public static Object getBeanProperty(Object bean, String fieldName){
