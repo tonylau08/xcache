@@ -16,20 +16,17 @@
 
 package com.igeeksky.xcache.support;
 
+import java.io.Serializable;
+
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-02-26 20:35:16
  */
-public interface CacheKey {
+public interface BasePO extends Serializable {
 	
-	public String getCacheName();
+	public Long getId();
 
-	public RedisDataType getDataType();
-
-	public Module getModule();
-
-	public long getAliveTime();
+	public Long getVersion();
 
 }

@@ -14,22 +14,34 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.support.gen;
+
+import com.igeeksky.xcache.exception.NullOrEmptyKeyException;
+import com.igeeksky.xcache.util.StringUtils;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-03-02 19:58:00
  */
-public interface CacheKey {
+
+public class KeyGen {
 	
-	public String getCacheName();
-
-	public RedisDataType getDataType();
-
-	public Module getModule();
-
-	public long getAliveTime();
+	public static String keyGen(Object...params){
+		StringBuilder builder = new StringBuilder();
+		for(int i=0; i<params.length; i++){
+			Object temp = params[i];
+			if(null != temp){
+				builder.append(temp);
+			}
+		}
+		String key = builder.toString();
+		if(StringUtils.isNotEmpty(key)){
+			return key;
+		}
+		throw new NullOrEmptyKeyException();
+	}
+	
+	private KeyGen(){}
 
 }

@@ -17,19 +17,11 @@
 package com.igeeksky.xcache.support;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-02-24 02:00:51
  */
-public interface CacheKey {
-	
-	public String getCacheName();
 
-	public RedisDataType getDataType();
-
-	public Module getModule();
-
-	public long getAliveTime();
+public interface StoreClient {
 
 }

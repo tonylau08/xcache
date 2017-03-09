@@ -5,8 +5,8 @@
 	<artifactId>xcache</artifactId>
 	<version>0.9.9-alpha</version>
 	</parent>
-	<artifactId>xcache-core</artifactId>
-	<name>xcache-core</name>
+	<artifactId>xcache-basic</artifactId>
+	<name>xcache-basic</name>
 	<description>xcache for spring</description>
 	
 	<licenses>
@@ -26,34 +26,29 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.igeeksky</groupId>
-			<artifactId>dcafe-snowflake</artifactId>
-			<version>1.1.0</version>
+			<artifactId>xcache-core</artifactId>
+			<version>${parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>redis.clients</groupId>
-			<artifactId>jedis</artifactId>
-			<version>2.9.0</version>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>${spring-data-redis.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>de.ruedigermoeller</groupId>
-			<artifactId>fst</artifactId>
-			<version>2.48</version>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.24</version>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>${jackson.version}</version>
+			<groupId>com.esotericsoftware</groupId>
+			<artifactId>kryo-shaded</artifactId>
+			<version>4.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
+			<groupId>org.msgpack</groupId>
+			<artifactId>msgpack</artifactId>
+			<version>0.6.12</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -14,22 +14,39 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.support.redis.cmd;
+
+import redis.clients.jedis.Jedis;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-03-08 00:50:17
  */
-public interface CacheKey {
+public class RedisDelKeys implements RedisCmd<Long> {
+
+	private byte[][] keys;
 	
-	public String getCacheName();
+	public RedisDelKeys(byte[]... keys) {
+		this.keys = keys;
+	}
+	
+	public void setParams(byte[]... keys){
+		this.keys = keys;
+	}
+	
+	public Long excute(Jedis jedis){
+		return jedis.del(keys);
+	}
 
-	public RedisDataType getDataType();
-
-	public Module getModule();
-
-	public long getAliveTime();
+	@Override
+	public byte[] getKey() {
+		return keys[0];
+	}
+	
+	public void release() {
+		this.keys = null;
+		RedisCmdHandler.INSTANCE.release(this);
+	}
 
 }

@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.support.redis.cmd;
+
+import redis.clients.jedis.Jedis;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-03-07 19:26:11
  */
-public interface CacheKey {
+public interface RedisCmd<T> {
 	
-	public String getCacheName();
-
-	public RedisDataType getDataType();
-
-	public Module getModule();
-
-	public long getAliveTime();
-
+	public T excute(Jedis jedis);
+	
+	public byte[] getKey();
+	
 }

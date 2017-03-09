@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.support.redis;
+
+import java.util.List;
+
+import com.igeeksky.xcache.extend.redis.RedisScript;
+import com.igeeksky.xcache.support.KeyValue;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-03-09 03:57:10
  */
-public interface CacheKey {
+
+public interface RedisClusterClient extends RedisClient {
+
+	public List<Object> evalListKey(RedisScript getListCmpVerScript, KeyValue[] kvs);
 	
-	public String getCacheName();
-
-	public RedisDataType getDataType();
-
-	public Module getModule();
-
-	public long getAliveTime();
-
 }

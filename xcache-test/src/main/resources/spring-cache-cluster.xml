@@ -1,0 +1,47 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-4.3.xsd
+	http://www.springframework.org/schema/cache
+	http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+	<cache:annotation-driven />
+	
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig"/>
+	
+	<bean id="jedisClusterHandler" class="com.igeeksky.xcache.support.redis.JedisClusterHandler"
+		c:jedisPoolConfig-ref="jedisPoolConfig">
+		<constructor-arg name="redisClusterNodes">
+			<set>
+				<value>192.168.0.11:7000</value>
+				<value>192.168.0.11:7001</value>
+				<value>192.168.0.11:7002</value>
+			</set>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="redisClient" class="com.igeeksky.xcache.support.redis.JedisClusterClient"
+		c:jedisClusterHandler-ref="jedisClusterHandler" c:maxRedirects="5">
+	</bean>
+	
+	<bean id="remoteCacheManager" class="com.igeeksky.xcache.extend.redis.RedisClusterCacheManager"
+		c:redisClient-ref="redisClient" c:expiration="7200" >
+	</bean>
+	
+	<bean id="localCacheManager" class="com.igeeksky.xcache.extend.chashmap.LocalHashMapCacheManager"
+		c:expiration="7200"
+		c:singleStoreMaxElements="30000"
+		c:cacheCleanPeriod="120">
+	</bean>
+	
+	<bean id="cacheManager" class="com.igeeksky.xcache.core.XcacheManager"
+		c:remoteCacheManager-ref="remoteCacheManager" 
+		c:localCacheManager-ref="localCacheManager" />
+	
+</beans>

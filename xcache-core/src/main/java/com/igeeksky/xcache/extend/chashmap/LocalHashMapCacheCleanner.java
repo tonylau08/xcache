@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.extend.chashmap;
 
 /**
- * cache key constants interface
+ * 
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-02-21 18:38:56
  */
-public interface CacheKey {
-	
-	public String getCacheName();
+class LocalHashMapCacheCleanner implements Runnable {
 
-	public RedisDataType getDataType();
+	private LocalHashMapCache localCache;
 
-	public Module getModule();
+	public LocalHashMapCacheCleanner(LocalHashMapCache localCache) {
+		this.localCache = localCache;
+	}
 
-	public long getAliveTime();
+	@Override
+	public void run() {
+		localCache.clean();
+	}
 
 }

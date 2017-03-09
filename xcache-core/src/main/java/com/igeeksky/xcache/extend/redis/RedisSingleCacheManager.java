@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.core;
+package com.igeeksky.xcache.extend.redis;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,24 +23,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
+import com.igeeksky.xcache.support.redis.RedisSingleClient;
+
 /**
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:38:02
+ * @createTime 2017-03-09 07:16:17
  */
-public class XcacheManager implements CacheManager {
+public class RedisSingleCacheManager implements CacheManager {
 	
-	private ConcurrentHashMap<String, Cache> cacheMap = new ConcurrentHashMap<String, Cache>(16);
+	private final ConcurrentHashMap<String, Cache> cacheMap = new ConcurrentHashMap<String, Cache>(16);
 	
-	private CacheManager remoteCacheManager;
+	private final RedisSingleClient redisClient;
 	
-	private CacheManager localCacheManager;
+	private final long expiration;
 	
 	private boolean dynamic = true;
 	
-	public XcacheManager(CacheManager remoteCacheManager, CacheManager localCacheManager) {
-		this.remoteCacheManager = remoteCacheManager;
-		this.localCacheManager = localCacheManager;
+	public RedisSingleCacheManager(RedisSingleClient redisClient, long expiration) {
+		this.redisClient = redisClient;
+		this.expiration = expiration;
 	}
 
 	@Override
@@ -67,8 +69,8 @@ public class XcacheManager implements CacheManager {
 		return false;
 	}
 	
-	private Xcache createCache(String name) {
-		return new XcacheDefault(name, remoteCacheManager.getCache(name), localCacheManager.getCache(name));
+	private RedisSingleCache createCache(String name) {
+		return new RedisSingleCache(name, expiration, redisClient);
 	}
 
 }

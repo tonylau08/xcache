@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.support.gen;
+
+import com.igeeksky.xcache.util.BeanUtils;
+import com.igeeksky.xcache.util.NumUtils;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-03-01 04:30:46
  */
-public interface CacheKey {
+public class VersionGen {
 	
-	public String getCacheName();
-
-	public RedisDataType getDataType();
-
-	public Module getModule();
-
-	public long getAliveTime();
+	public static Long gen(Object value) {
+		Object temp = BeanUtils.getBeanProperty(value, "version");
+		return NumUtils.getLong(temp);
+	}
+	
+	private VersionGen(){}
 
 }

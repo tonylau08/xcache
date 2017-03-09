@@ -16,20 +16,53 @@
 
 package com.igeeksky.xcache.support;
 
+import org.springframework.cache.Cache.ValueWrapper;
+
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-02-24 04:28:33
  */
-public interface CacheKey {
+public class RemoteResult implements ValueWrapper {
 	
-	public String getCacheName();
+	public Integer s;
+	
+	public Long v;
+	
+	public Object o;
 
-	public RedisDataType getDataType();
+	public Integer getS() {
+		return s;
+	}
 
-	public Module getModule();
+	public void setS(Integer s) {
+		this.s = s;
+	}
 
-	public long getAliveTime();
+	public Long getV() {
+		return v;
+	}
+
+	public void setV(Long v) {
+		this.v = v;
+	}
+
+	public Object getO() {
+		return o;
+	}
+
+	public void setO(Object o) {
+		this.o = o;
+	}
+
+	@Override
+	public String toString() {
+		return "RedisResult [s=" + s + ", v=" + v + ", o=" + o + "]";
+	}
+
+	@Override
+	public Object get() {
+		return o;
+	}
 
 }

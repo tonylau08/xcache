@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.support.serializer;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-03-07 07:03:36
  */
-public interface CacheKey {
+public interface KeySerializer<V, E> extends Serializer<V, E> {
+
 	
-	public String getCacheName();
-
-	public RedisDataType getDataType();
-
-	public Module getModule();
-
-	public long getAliveTime();
-
 }

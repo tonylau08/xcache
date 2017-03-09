@@ -25,6 +25,7 @@
 	<properties>
     	<spring.version>4.2.9.RELEASE</spring.version>
 		<spring-data-redis.version>1.7.6.RELEASE</spring-data-redis.version>
+		<jackson.version>2.8.3</jackson.version>
 		<junit.version>4.12</junit.version>
 		<slf4j.version>1.7.21</slf4j.version>
 		<log4j.version>1.2.17</log4j.version>
@@ -54,5 +55,6 @@
 	<modules>
 		<module>xcache-core</module>
 		<module>xcache-test</module>
+		<module>xcache-basic</module>
 	</modules>
 </project>

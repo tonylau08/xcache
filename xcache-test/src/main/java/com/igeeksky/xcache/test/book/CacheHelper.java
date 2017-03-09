@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.test.book;
+
+import java.util.List;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-02-26 02:31:59
  */
-public interface CacheKey {
-	
-	public String getCacheName();
 
-	public RedisDataType getDataType();
+public interface CacheHelper {
 
-	public Module getModule();
+	Long getId(String name);
 
-	public long getAliveTime();
+	Book getById(Long id);
+
+	Long put(String name, long id);
+
+	Long[] putIds(long offset, int size, List<Book> list);
+
+	Long[] getIds(long offset, int size);
 
 }

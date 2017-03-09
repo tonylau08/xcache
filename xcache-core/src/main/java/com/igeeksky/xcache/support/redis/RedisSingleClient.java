@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.support.redis;
+
+import com.igeeksky.xcache.extend.redis.RedisScript;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-03-08 23:59:59
  */
-public interface CacheKey {
+public interface RedisSingleClient extends RedisClient {
 	
-	public String getCacheName();
-
-	public RedisDataType getDataType();
-
-	public Module getModule();
-
-	public long getAliveTime();
+	public Object eval(final RedisScript script, int keyCount, final byte[]...params);
 
 }

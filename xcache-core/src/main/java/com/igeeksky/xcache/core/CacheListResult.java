@@ -14,22 +14,46 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.core;
+
+import java.util.List;
+import java.util.Map;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-03-02 20:12:08
  */
-public interface CacheKey {
+public class CacheListResult<E, T> {
 	
-	public String getCacheName();
+	private List<E> allIds;
+	
+	private List<E> nonCacheIds;
+	
+	private Map<E, T> cacheElements;
 
-	public RedisDataType getDataType();
+	public List<E> getAllIds() {
+		return allIds;
+	}
 
-	public Module getModule();
+	public void setAllIds(List<E> allIds) {
+		this.allIds = allIds;
+	}
 
-	public long getAliveTime();
+	public List<E> getNonCacheIds() {
+		return nonCacheIds;
+	}
 
+	public void setNonCacheIds(List<E> nonCacheIds) {
+		this.nonCacheIds = nonCacheIds;
+	}
+
+	public Map<E, T> getCacheElements() {
+		return cacheElements;
+	}
+
+	public void setCacheElements(Map<E, T> cacheElements) {
+		this.cacheElements = cacheElements;
+	}
+	
 }

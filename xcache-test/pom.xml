@@ -25,7 +25,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.igeeksky</groupId>
-			<artifactId>xcache-core</artifactId>
+			<artifactId>xcache-basic</artifactId>
 			<version>0.9.9-alpha</version>
 		</dependency>
 		<dependency>
@@ -33,6 +33,16 @@
 			<artifactId>lettuce</artifactId>
 			<version>3.5.0.Final</version>
 		</dependency>
+		<!-- <dependency>
+			<groupId>com.netflix.dyno</groupId>
+			<artifactId>dyno-jedis</artifactId>
+			<version>1.5.7</version>
+		</dependency> -->
+		<!-- <dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>2.9.0</version>
+		</dependency> -->
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache</artifactId>

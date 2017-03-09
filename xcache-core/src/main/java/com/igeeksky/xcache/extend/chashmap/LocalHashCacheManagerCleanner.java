@@ -14,22 +14,32 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.extend.chashmap;
+
+import java.util.List;
+
+import org.springframework.cache.Cache;
 
 /**
- * cache key constants interface
+ * 
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-02-21 18:38:26
  */
-public interface CacheKey {
-	
-	public String getCacheName();
+public class LocalHashCacheManagerCleanner implements Runnable {
 
-	public RedisDataType getDataType();
+	private LocalHashMapCacheManager cacheManager;
 
-	public Module getModule();
+	public LocalHashCacheManagerCleanner(LocalHashMapCacheManager cacheManager) {
+		this.cacheManager = cacheManager;
+	}
 
-	public long getAliveTime();
+	@Override
+	public void run() {
+		List<Cache> caches = cacheManager.getAllCache();
+		for (Cache cache : caches) {
+			((LocalHashMapCache) cache).clean();
+		}
+	}
 
 }

@@ -14,22 +14,29 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com.igeeksky.xcache.exception;
+
+import org.springframework.core.NestedRuntimeException;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-03-07 07:58:20
  */
-public interface CacheKey {
+public class NullOrEmptyKeyException extends NestedRuntimeException {
+
+	private static final long serialVersionUID = -1448602051163305877L;
 	
-	public String getCacheName();
-
-	public RedisDataType getDataType();
-
-	public Module getModule();
-
-	public long getAliveTime();
+	public NullOrEmptyKeyException() {
+        super("Key must not be null or empty or blank string");
+    }
+	
+	public NullOrEmptyKeyException(String message) {
+        super(message);
+    }
+	
+	public NullOrEmptyKeyException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

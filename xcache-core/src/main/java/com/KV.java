@@ -14,22 +14,56 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.support;
+package com;
 
 /**
- * cache key constants interface
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-02-21 18:39:28
+ * @createTime 2017-03-02 21:37:52
  */
-public interface CacheKey {
+public class KV {
 	
-	public String getCacheName();
+	private Object id;
+	
+	private Object k;
+	
+	private Object v;
 
-	public RedisDataType getDataType();
+	public KV() {}
 
-	public Module getModule();
+	public KV(Object k, Object v) {
+		this.k = k;
+		this.v = v;
+	}
 
-	public long getAliveTime();
+	public KV(Object id, Object k, Object v) {
+		this.id = id;
+		this.k = k;
+		this.v = v;
+	}
 
+	public Object getId() {
+		return id;
+	}
+
+	public void setId(Object id) {
+		this.id = id;
+	}
+	
+	public Object getK() {
+		return k;
+	}
+
+	public void setK(Object k) {
+		this.k = k;
+	}
+
+	public Object getV() {
+		return v;
+	}
+
+	public void setV(Object v) {
+		this.v = v;
+	}
+	
 }
