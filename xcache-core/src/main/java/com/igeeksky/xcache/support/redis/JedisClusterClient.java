@@ -16,16 +16,13 @@
 
 package com.igeeksky.xcache.support.redis;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.KV;
 import com.igeeksky.xcache.extend.redis.RedisScript;
-import com.igeeksky.xcache.support.KeyValue;
 import com.igeeksky.xcache.support.redis.cmd.RedisCmd;
 import com.igeeksky.xcache.support.redis.cmd.RedisDel;
 import com.igeeksky.xcache.support.redis.cmd.RedisGet;
@@ -36,7 +33,6 @@ import com.igeeksky.xcache.support.redis.cmd.RedisHkeys;
 import com.igeeksky.xcache.support.redis.cmd.RedisHset;
 import com.igeeksky.xcache.support.redis.cmd.RedisSet;
 import com.igeeksky.xcache.support.redis.cmd.RedisSetex;
-import com.igeeksky.xcache.support.serializer.Jackson2JsonSerializer;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
@@ -56,8 +52,6 @@ public class JedisClusterClient implements RedisClusterClient {
 	private final int maxRedirects;
 	
 	private final RedisScript batchDelScript = new RedisScript("local num=0; for i in ipairs(ARGV) do num = num + redis.call('DEL',ARGV[i]); end; return num;");
-	
-	private final Jackson2JsonSerializer<KV[]> kvJsonSerializer = new Jackson2JsonSerializer<KV[]>(KV[].class);
 	
 	public JedisClusterClient(JedisClusterHandler jedisClusterHandler, int maxRedirects) {
 		this.jedisClusterHandler = jedisClusterHandler;
@@ -172,31 +166,15 @@ public class JedisClusterClient implements RedisClusterClient {
 	}
 	
 	@Override
-	public List<Object> evalListKey(RedisScript script, KeyValue[] kvs) {
-		Map<String, List<KeyValue>> map = jedisClusterHandler.getHostsByKeys(kvs);
-		List<Object> result = new ArrayList<Object>();
-		Iterator<Entry<String, List<KeyValue>>> it = map.entrySet().iterator();
-		while (it.hasNext()) {
-			Entry<String, List<KeyValue>> entry = it.next();
-			String ipPort = entry.getKey();
-			List<KeyValue> list = entry.getValue();
-			int keyCount = list.size();
-			if (keyCount > 0) {
-				KV[] kves = new KV[keyCount];
-				for(int i=0; i<keyCount; i++){
-					KeyValue keyValue = list.get(i);
-					kves[i] = keyValue.getKV();
-				}
-				byte[] kvbs = kvJsonSerializer.serialize(kves);
-				Object obj = evalOrEvalsha(0, null, null, ipPort, script, 0, kvbs);
-				if (null != obj) {
-					result.add(obj);
-				}
-			}
-		}
-		return result;
+	public Object evalSameHostKeys(RedisScript script, String ipPort, final byte[] kvs) {
+		return evalOrEvalsha(0, null, null, ipPort, script, 0, kvs);
 	}
-
+	
+	@Override
+	public String getHostByKey(byte[] key){
+		return jedisClusterHandler.getHost(key);
+	}
+	
 	private Object evalOrEvalsha(int redirect, Integer slot, HostAndPort hp, String ipPort, RedisScript script, int keyCount, byte[]... params) {
 		if (redirect > maxRedirects) {
 			return null;

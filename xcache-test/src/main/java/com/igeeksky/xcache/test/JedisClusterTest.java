@@ -16,29 +16,20 @@
 
 package com.igeeksky.xcache.test;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.R;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.igeeksky.xcache.extend.redis.RedisCacheMetadata;
 import com.igeeksky.xcache.extend.redis.RedisClusterScriptManager;
-import com.igeeksky.xcache.support.KeyValue;
+import com.igeeksky.xcache.extend.redis.RedisScript;
 import com.igeeksky.xcache.support.redis.JedisClusterClient;
 import com.igeeksky.xcache.support.redis.JedisClusterHandler;
 import com.igeeksky.xcache.support.serializer.GenericJackson2JsonSerializer;
+import com.igeeksky.xcache.support.serializer.StringKeySerializer;
 import com.igeeksky.xcache.test.book.Book;
 
 import redis.clients.jedis.JedisPoolConfig;
@@ -55,8 +46,10 @@ public class JedisClusterTest {
 	private JedisClusterClient cluster;
 	
 	public final GenericJackson2JsonSerializer jacksonSerializer = new GenericJackson2JsonSerializer();
+	public final StringKeySerializer keySerializer = new StringKeySerializer();
 	
-	public RedisClusterScriptManager scriptManager = new RedisClusterScriptManager("~C_SYSUSER", 86400); 
+	public RedisClusterScriptManager scriptManager = new RedisClusterScriptManager("C_BOOK", 86400);
+	public RedisCacheMetadata metadata = new RedisCacheMetadata("C_BOOK", keySerializer);
 	
 	private long start;
 	
@@ -65,7 +58,7 @@ public class JedisClusterTest {
 		int length =10000;
 		byte[][] keys = new byte[length][];
 		for(int i=0; i< length; i++){
-			keys[i] = ("C_BOOK_"+ i).getBytes();
+			keys[i] = metadata.getFullIdKeyBytes(i);
 		}
 		Long num = cluster.del(keys);
 		System.out.println(num);
@@ -76,7 +69,7 @@ public class JedisClusterTest {
 		long a = System.currentTimeMillis();
 		int length =100000;
 		for(int i=0; i< length; i++){
-			cluster.del(("C_BOOK_"+ i).getBytes());
+			cluster.del(("~C_BOOK~I:"+ i).getBytes());
 		}
 		System.out.println(System.currentTimeMillis() - a);
 	}
@@ -86,85 +79,32 @@ public class JedisClusterTest {
 		long a = System.currentTimeMillis();
 		int length =1000;
 		for(int i=0; i< length; i++){
-			cluster.set(("C_BOOK_"+ i).getBytes(), "".getBytes());
+			cluster.set(metadata.getFullIdKeyBytes(i), "".getBytes());
 		}
 		System.out.println(System.currentTimeMillis() - a);
 	}
 	
 	@Test
-	public void testJedisClusterEvalListKey() throws JsonParseException, JsonMappingException, IOException, IllegalArgumentException, ClassNotFoundException{
-		//Jackson2JsonRedisSerializer<HashMap> jsonRedisSerializer = new Jackson2JsonRedisSerializer<HashMap>(HashMap.class);
-		GenericJackson2JsonSerializer jsonRedisSerializer = new GenericJackson2JsonSerializer();
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE,true);
-		
-		String key = "~C_SYSUSER";
-		int len = 1;
-		KeyValue[] kvs = new KeyValue[len];
-		for (int i = 0; i < len; i++) {
-			String k = key + "~I:"+i;
-			KeyValue keyValue = new KeyValue();
-			keyValue.setKey(k);
-			keyValue.setValue(1);
-			keyValue.setFullIdKeyBytes(k.getBytes());;
-			kvs[i] = keyValue;
-		}
-		
-		List<Object> list = cluster.evalListKey(new RedisClusterScriptManager(key, 8600).getGetListCmpVerScript(), kvs);
-		
-		for(int i = 0; i<list.size(); i++){
-			Object obj = list.get(i);
-			
-			@SuppressWarnings("unchecked")
-			HashMap<String, R> rs = jsonRedisSerializer.deserialize((byte[])obj, HashMap.class);
-			System.out.println(rs.getClass());
-			
-			Iterator<Entry<String, R>> it = rs.entrySet().iterator();
-			while(it.hasNext()){
-				Entry<String, R> entry = it.next();
-				String id =entry.getKey();
-				R r = entry.getValue();
-				System.out.println(id);
-				
-				System.out.println(r);
-				if(r.s == 2 || r.s ==4){
-					System.out.println(r.o.getClass());
-					System.out.println(r.o);
-					
-					Object ss = jsonRedisSerializer.deserialize(r.o.toString().getBytes());
-					System.out.println(ss.getClass());
-					System.out.println(ss);
-				}
-			}
-			
-		}
-	}
-	
-	/**
-	 * <b>DONE<b>
-	 */
-	@Test
 	public void testJedisClusterEvalOneKey(){
-		String key = "~C_SYSUSER";
 		
 		for(Long i=0l; i<10; i++){
-			byte[] keyBytes = (key + "~I:"+i).getBytes();
-			Book book = new Book(i, "thank", "dddd".getBytes());
-			//book.setVersion(2l);
+			byte[] keyBytes = metadata.getFullIdKeyBytes(i);
+			Book book = new Book(i, "thank", "dddd".getBytes(), 2l);
 			byte[] bookBytes = jacksonSerializer.serialize(book);
-			Object obj = cluster.evalOneKey(scriptManager.getPutCmpVerScript(), keyBytes, bookBytes, String.valueOf(1l).getBytes());
+			RedisScript script = scriptManager.getPutCmpVerScript();
+			
+			Object obj = cluster.evalOneKey(script, keyBytes, bookBytes, String.valueOf(1l).getBytes());
 			
 			int status = Integer.parseInt(obj.toString());
 			System.out.println(status);
 			
-			byte[] cKeyBytes = (key + "~C").getBytes();
-			byte[] idBytes = jacksonSerializer.serialize(i);
+			byte[] keySetBytes = metadata.getKeySetBytes();
+			byte[] idBytes = keySerializer.serialize(i);
 			byte[] b = jacksonSerializer.serialize(1);
 			if(status == 1){
-				cluster.hset(cKeyBytes, idBytes, b);
+				cluster.hset(keySetBytes, idBytes, b);
 			}else if(status == 0){
-				cluster.hdel(cKeyBytes, idBytes);
+				cluster.hdel(keySetBytes, idBytes);
 			}else{
 				//status==2	key集合已经存在，无操作
 			}
@@ -174,19 +114,16 @@ public class JedisClusterTest {
 	@Test
 	public void testJedisClusterHset(){
 		for(Long i=0l; i<1; i++){
-			Object obj = cluster.hget("~C_SYSUSER~C".getBytes(), String.valueOf(1).getBytes());
+			Object obj = cluster.hget(metadata.getKeySetBytes(), String.valueOf(1).getBytes());
 			System.out.println(obj);
 		}
 	}
 	
 	@Test
 	public void testJedisClusterPut(){
-		String key = "~C_SYSUSER";
-		
 		for(Long i=0l; i<10; i++){
-			byte[] keyBytes = (key + "~I:"+i).getBytes();
-			Book book = new Book(i, "thank", "dddd".getBytes());
-			//book.setVersion(2l);
+			byte[] keyBytes = metadata.getFullIdKeyBytes(i);
+			Book book = new Book(i, "thank", "dddd".getBytes(), 2l);
 			byte[] bookBytes = jacksonSerializer.serialize(book);
 			Object obj = cluster.set(keyBytes, bookBytes);
 			System.out.println(obj);

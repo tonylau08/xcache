@@ -28,12 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.support.SimpleValueWrapper;
 
+import com.KV;
 import com.R;
 import com.igeeksky.xcache.core.RemoteCache;
 import com.igeeksky.xcache.support.KeyValue;
 import com.igeeksky.xcache.support.redis.RedisClusterClient;
 import com.igeeksky.xcache.support.serializer.FSTSerializer;
 import com.igeeksky.xcache.support.serializer.GenericJackson2JsonSerializer;
+import com.igeeksky.xcache.support.serializer.Jackson2JsonSerializer;
 import com.igeeksky.xcache.support.serializer.KeySerializer;
 import com.igeeksky.xcache.support.serializer.StringKeySerializer;
 import com.igeeksky.xcache.support.serializer.ValueSerializer;
@@ -54,6 +56,8 @@ public class RedisClusterCache implements RemoteCache {
 	private final KeySerializer<Object, Object> keySerializer = new StringKeySerializer();
 
 	private final ValueSerializer<Object, Object> hashValueSerializer = new FSTSerializer();
+	
+	private final Jackson2JsonSerializer<KV[]> kvJsonSerializer = new Jackson2JsonSerializer<KV[]>(KV[].class);
 
 	private final ScriptManager scriptManager;
 
@@ -265,82 +269,70 @@ public class RedisClusterCache implements RemoteCache {
 		}
 		return null;
 	}
-
+	
 	@Override
-	public Map<Object, R> getListCmpVersion(KeyValue[] kvs) {
+	public Map<Object, R> getListCmpVersion(KeyValue[] keyValues) {
 		int length;
-		if (null == kvs || (length = kvs.length) == 0) {
+		if (null == keyValues || (length = keyValues.length) == 0) {
 			return null;
 		}
 
 		// 1.记录RedisKey 与 实体ID的映射
 		Map<String, Object> keyIdMap = new HashMap<String, Object>();
-
-		// 2.拼接FullKey String 和 FullKeyBytes
+		Map<String, List<KV>> hostKvsMap = new HashMap<String, List<KV>>();
+		
+		// 2.拼接FullKey String 和 FullKeyBytes，获取Key执行的RedisServer Host
 		for (int i = 0; i < length; i++) {
-			KeyValue kv = kvs[i];
-			Object id = kv.getId();
+			KeyValue keyValue = keyValues[i];
+			Object id = keyValue.getId();
 			
 			byte[] fullIdKeyBytes = metadata.getFullIdKeyBytes(id);
 			String fullIdKey = new String(fullIdKeyBytes);
-			
 			keyIdMap.put(fullIdKey, id);
-			kv.setKey(fullIdKey);
-			kv.setFullIdKeyBytes(fullIdKeyBytes);
+			
+			KV kv = new KV(fullIdKey, keyValue.getValue());
+			putKvToList(hostKvsMap, fullIdKeyBytes, kv);
 		}
-
-		// 3.获取返回结果
-		int size;
-		List<Object> results = redisClient.evalListKey(scriptManager.getGetListCmpVerScript(), kvs);
 		
-		kvs = null;
-		if (null == results || (size = results.size()) == 0) {
-			return null;
+		Map<Object, R> result = evalListAndGetResult(scriptManager.getGetListCmpVerScript(), keyIdMap, hostKvsMap);
+		
+		// 8.如果返回结果的记录数小于应返回的记录数，说明Redis运行发生了错误，可能是Key转移到另外的RedisServer节点
+		if (result.size() < length) {
+			logger.error("Request KeyValues length: " + length + "; Response result size: " + result.size());
 		}
-
-		// 4.实体ID 与 获取缓存的结果的映射
-		Map<Object, R> idRsMap = new HashMap<Object, R>();
-		// 5.远程版本小于本地版本的key集合
+		
+		return result;
+	}
+	
+	/**
+	 * <b>3. 执行脚本并获取返回结果</b>
+	 * @param script
+	 * @param keyIdMap
+	 * @param hostKvsMap
+	 * @return
+	 */
+	private Map<Object, R> evalListAndGetResult(RedisScript script, Map<String, Object> keyIdMap, Map<String, List<KV>> hostKvsMap){
+		// 4. 实体ID : 缓存获取结果
+		Map<Object, R> result = new HashMap<Object, R>();
+		
+		// 5. 远程版本小于本地版本的key集合
 		List<byte[]> delKeys = new ArrayList<byte[]>();
-
-		// 6.写入返回结果
-		for (int i = 0; i < size; i++) {
-			Object obj = results.get(i);
-			@SuppressWarnings("unchecked")
-			HashMap<String, R> rs = valueSerializer.deserialize((byte[]) obj, HashMap.class);
-
-			Iterator<Entry<String, R>> it = rs.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<String, R> entry = it.next();
-				Object fullIdKey = entry.getKey();
-				R r = entry.getValue();
-				if (r.s == 2 || r.s == 4) {
-					Object strToObj = valueSerializer.deserialize(r.o.toString().getBytes());
-					r.o = strToObj;
-				}
-
-				Object id = keyIdMap.get(fullIdKey);
-				if (id == null) {
-					logger.error("Redis response result has error, RedisKey:" + fullIdKey
-							+ "can not find relation entity ID, may be serializer error");
-					continue;
-				}
+		
+		for(Entry<String, List<KV>> entry : hostKvsMap.entrySet()){
+			List<KV> kvList = entry.getValue();
+			int keyCount;
+			if ((keyCount = kvList.size()) > 0) {
+				KV[] kvs = kvList.toArray(new KV[keyCount]);
+				byte[] bytes = kvJsonSerializer.serialize(kvs);
 				
-				if (r.s == 3) {
-					delKeys.add(keySerializer.serialize(id));
+				Object redisObj = redisClient.evalSameHostKeys(script, entry.getKey(), bytes);
+				if (null != redisObj) {
+					resolveAndPutToResult(result, keyIdMap, delKeys, redisObj);
+					redisObj = null;
 				}
-				
-				idRsMap.put(id, r);
 			}
-			rs.clear();
-			rs = null;
-			obj = null;
 		}
-		results.clear();
-		results = null;
-		keyIdMap.clear();
-		keyIdMap = null;
-
+		
 		// 7.删除KeySet中远程版本小于本地版本的ID
 		int delSize = delKeys.size();
 		if (delSize == 1) {
@@ -348,15 +340,56 @@ public class RedisClusterCache implements RemoteCache {
 		} else if (delSize > 1) {
 			redisClient.hdel(metadata.getKeySetBytes(), delKeys.toArray(new byte[delKeys.size()][]));
 		}
-
-		// 8.如果返回结果的记录数小于应返回的记录数，说明Redis运行发生了错误，可能是Key转移到另外的RedisServer节点
-		if (idRsMap.size() < length) {
-			logger.error("Request KeyValues length: " + length + "; Response result size: " + idRsMap.size());
-		}
-
-		return idRsMap;
+		
+		return result;
 	}
 
+	/**
+	 * <b>6.解析Redis返回的对象并将结果存入最终返回的result</b>
+	 * @param result
+	 * @param keyIdMap	FullKey 与 ID 的映射(避免ID因为序列化造成类型丢失)
+	 * @param delKeys	需删除的错误缓存
+	 * @param redisObj	Redis返回的对象
+	 */
+	private void resolveAndPutToResult(Map<Object, R> result, Map<String, Object> keyIdMap, List<byte[]> delKeys, Object redisObj) {
+		@SuppressWarnings("unchecked")
+		HashMap<String, R> rs = valueSerializer.deserialize((byte[]) redisObj, HashMap.class);
+
+		Iterator<Entry<String, R>> it = rs.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<String, R> entry = it.next();
+			Object fullIdKey = entry.getKey();
+			R r = entry.getValue();
+			if (r.s == 2 || r.s == 4) {
+				Object strToObj = valueSerializer.deserialize(r.o.toString().getBytes());
+				r.o = strToObj;
+			}
+
+			Object id = keyIdMap.get(fullIdKey);
+			if (id == null) {
+				logger.error("Redis response result has error, RedisKey:" + fullIdKey
+						+ "can not find relation entity ID, may be serializer error");
+				continue;
+			}
+			
+			if (r.s == 3) {
+				delKeys.add(keySerializer.serialize(id));
+			}
+			
+			result.put(id, r);
+		}
+	}
+
+	private void putKvToList(Map<String, List<KV>> hostKvsMap, byte[] fullIdKeyBytes, KV kv) {
+		String host = redisClient.getHostByKey(fullIdKeyBytes);
+		List<KV> kvList = hostKvsMap.get(host);
+		if(kvList == null){
+			kvList = new ArrayList<KV>();
+			hostKvsMap.put(host, kvList);
+		}
+		kvList.add(kv);
+	}
+	
 	@Override
 	public String putOther(Object key, int second, Object value) {
 		return redisClient.setex(metadata.getFullOtherKeyBytes(key), second, hashValueSerializer.serialize(value));

@@ -30,7 +30,7 @@ public class KeyValue {
 	
 	private Object id;
 	
-	private Object key;
+	private Object fullIdKey;
 	
 	private Object value;
 	
@@ -47,11 +47,11 @@ public class KeyValue {
 	}
 	
 	public KV getKVWithId(){
-		return new KV(id, key, value);
+		return new KV(id, fullIdKey, value);
 	}
 	
 	public KV getKV(){
-		return new KV(key, value);
+		return new KV(fullIdKey, value);
 	}
 
 	public Object getId() {
@@ -62,12 +62,12 @@ public class KeyValue {
 		this.id = id;
 	}
 
-	public Object getKey() {
-		return key;
+	public Object getFullIdKey() {
+		return fullIdKey;
 	}
 
-	public void setKey(Object key) {
-		this.key = key;
+	public void setFullIdKey(Object fullIdKey) {
+		this.fullIdKey = fullIdKey;
 	}
 
 	public Object getValue() {

@@ -16,19 +16,17 @@
 
 package com.igeeksky.xcache.support.redis;
 
-import java.util.List;
-
 import com.igeeksky.xcache.extend.redis.RedisScript;
-import com.igeeksky.xcache.support.KeyValue;
 
 /**
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
  * @createTime 2017-03-09 03:57:10
  */
-
 public interface RedisClusterClient extends RedisClient {
 
-	public List<Object> evalListKey(RedisScript getListCmpVerScript, KeyValue[] kvs);
+	public Object evalSameHostKeys(RedisScript script, String ipPort, final byte[] kvs);
+
+	String getHostByKey(byte[] key);
 	
 }

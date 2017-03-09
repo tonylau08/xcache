@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.igeeksky.xcache.support.KeyValue;
 import com.igeeksky.xcache.support.redis.RedisNode.MasterSlave;
 
 import redis.clients.jedis.HostAndPort;
@@ -50,6 +49,8 @@ public class JedisClusterHandler {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	public static final int CLUSTER_SLOT_MAXNUM = 16384;
+
+	private static final int MIN_CLUSTER_NODE_NUM = 3;
 
 	private final JedisPoolConfig jedisPoolConfig;
 
@@ -113,7 +114,9 @@ public class JedisClusterHandler {
 			try {
 				jedis = new Jedis(myelfHost, myselfPort);
 				String clusterNodes = jedis.clusterNodes();
-				initRedisNodes(myelfHost, myselfPort, clusterNodes);
+				if(initRedisNodes(myelfHost, myselfPort, clusterNodes)){
+					continue;
+				}
 				initSlotAndPool();
 				removeInvaidPool();
 				refreshStatus = true;
@@ -135,9 +138,12 @@ public class JedisClusterHandler {
 	 * @param myselfPort
 	 * @param clusterNodes
 	 */
-	private void initRedisNodes(String myselfHost, int myselfPort, String clusterNodes) {
+	private boolean initRedisNodes(String myselfHost, int myselfPort, String clusterNodes) {
 		String[] nodes = clusterNodes.split("\n");
 		int nodesNum = nodes.length;
+		if(nodesNum < MIN_CLUSTER_NODE_NUM){
+			return false;
+		}
 		Map<String, RedisNode> ipPortMap = new HashMap<String, RedisNode>(nodesNum * 2);
 		Map<String, RedisNode> idMap = new HashMap<String, RedisNode>(nodesNum);
 		for (int i = 0; i < nodesNum; i++) {
@@ -198,6 +204,7 @@ public class JedisClusterHandler {
 		}
 		redisNodesMap.clear();
 		redisNodesMap = ipPortMap;
+		return true;
 	}
 
 	/**
@@ -244,31 +251,8 @@ public class JedisClusterHandler {
 		}
 	}
 
-	public RedisNode getJedisNode(String hostAndPort) {
+	public RedisNode getRedisNode(String hostAndPort) {
 		return redisNodesMap.get(hostAndPort);
-	}
-
-	@SuppressWarnings("unchecked")
-	public Map<String, List<KeyValue>> getHostsByKeys(KeyValue[] kvs) {
-		int length;
-		if (null == kvs || (length = kvs.length) == 0) {
-			return Collections.EMPTY_MAP;
-		}
-
-		Map<String, List<KeyValue>> map = new HashMap<String, List<KeyValue>>();
-
-		for (int i = 0; i < length; i++) {
-			KeyValue kv = kvs[i];
-			String ipPort = getHost(kv.getFullIdKeyBytes());
-			List<KeyValue> kvList = map.get(ipPort);
-			if (null == kvList) {
-				kvList = new ArrayList<KeyValue>();
-				map.put(ipPort, kvList);
-			}
-			kvList.add(kv);
-		}
-
-		return map;
 	}
 
 	@SuppressWarnings("unchecked")

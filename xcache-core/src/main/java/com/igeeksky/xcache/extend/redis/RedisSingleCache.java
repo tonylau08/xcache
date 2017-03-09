@@ -269,7 +269,7 @@ public class RedisSingleCache implements RemoteCache {
 			KeyValue keyValue = kvs[i];
 			Object id = keyValue.getId();
 			String fullIdKey = new String(metadata.getFullIdKeyBytes(id));
-			keyValue.setKey(fullIdKey);
+			keyValue.setFullIdKey(fullIdKey);
 			
 			keyIdMap.put(fullIdKey, id);
 			kves[i] = keyValue.getKVWithId();
