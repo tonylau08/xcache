@@ -154,12 +154,10 @@ public class XcacheDefault implements Xcache {
 	@Override
 	public void evict(Object key) {
 		Assert.notNull(key, "Key must not be null");
-		
-		// 1.删除远程缓存及key集合中的元素
-		remoteCache.evict(key);
-
-		// 2.删除本地缓存及版本号
+		// 1.删除本地缓存及版本号
 		localCache.evict(key);
+		// 2.删除远程缓存及key集合中的元素
+		remoteCache.evict(key);
 	}
 
 	@Override

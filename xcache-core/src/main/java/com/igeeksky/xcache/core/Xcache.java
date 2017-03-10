@@ -27,20 +27,28 @@ import org.springframework.cache.Cache;
  */
 public interface Xcache extends Cache {
 
+	/** 保存列表到缓存 */
 	public <T> void putList(Object key, Object[] values, String idField, Class<T> idType);
-
+	
+	/** 从缓存获取列表 */
+	public <E, T> CacheListResult<E, T> getList(Object key, Class<E> idType, Class<T> valueType);
+	
+	/** 保存ID关联到缓存 */
 	public void putRelation(Object key, Object value, String idField);
-
-	public ValueWrapper getRelation(Object key);
-
+	
+	/** 通过ID关联获取缓存对象 */
 	public <T> T getRelation(Object key, Class<T> type);
-
+	
+	public ValueWrapper getRelation(Object key);
+	
 	public Object getRelationId(Object key);
 
+	/** 保存非持久化对象到缓存 */
 	public void putOther(Object key, int second, Object value);
 
 	public ValueWrapper getOther(Object key);
 
+	/** 从缓存获取非持久化对象 */
 	public <T> T getOther(Object key, Class<T> type);
 
 	public void delOther(Object key);
@@ -51,7 +59,7 @@ public interface Xcache extends Cache {
 
 	public <T>List<T> getIds(Object key, Class<T> idType);
 
-	public <E, T> CacheListResult<E, T> getList(Object key, Class<E> idType, Class<T> valueType);
+	
 
 
 }
