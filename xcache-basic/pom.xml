@@ -1,54 +1,55 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-	<groupId>com.igeeksky</groupId>
-	<artifactId>xcache</artifactId>
-	<version>0.9.9-alpha</version>
-	</parent>
-	<artifactId>xcache-basic</artifactId>
-	<name>xcache-basic</name>
-	<description>xcache for spring</description>
-	
-	<licenses>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.igeeksky.xcache</groupId>
+        <artifactId>xcache</artifactId>
+        <version>0.9.9-alpha</version>
+    </parent>
+    <artifactId>xcache-basic</artifactId>
+    <name>xcache-basic</name>
+    <description>xcache for spring</description>
+
+    <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
-    
-	<developers>
-		<developer>
-			<name>Tony.Lau</name>
-			<email>coffeelifelau@163.com</email>
-			<url>https://my.oschina.net/xcafe</url>
-		</developer>
-	</developers>
-	
-	<dependencies>
-		<dependency>
-			<groupId>com.igeeksky</groupId>
-			<artifactId>xcache-core</artifactId>
-			<version>${parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-redis</artifactId>
-			<version>${spring-data-redis.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>1.2.24</version>
-		</dependency>
-		<dependency>
-			<groupId>com.esotericsoftware</groupId>
-			<artifactId>kryo-shaded</artifactId>
-			<version>4.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.msgpack</groupId>
-			<artifactId>msgpack</artifactId>
-			<version>0.6.12</version>
-		</dependency>
-	</dependencies>
+
+    <developers>
+        <developer>
+            <name>Tony.Lau</name>
+            <email>coffeelifelau@163.com</email>
+            <url>https://my.oschina.net/xcafe</url>
+        </developer>
+    </developers>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.igeeksky.xcache</groupId>
+            <artifactId>xcache-core</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+            <version>${spring-data-redis.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.24</version>
+        </dependency>
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo-shaded</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.msgpack</groupId>
+            <artifactId>msgpack</artifactId>
+            <version>0.6.12</version>
+        </dependency>
+    </dependencies>
 </project>
