@@ -1,14 +1,51 @@
-# Maven #
-target/
-logs/
+### STS ###
+.apt_generated
+.springBeans
+.sts4-cache
 
-# IDEA #
-.idea/
+### IntelliJ IDEA ###
+*.iws
 *.iml
+*.ipr
+.idea/
+idea/
 
-# Eclipse #
+### eclipse ignore ###
+Servers/
 .settings/
 .metadata/
-.classpath
 .project
-Servers/
+.classpath
+.factorypath
+.externalToolBuilers/
+
+### NetBeans ###
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### maven ignore ###
+bin/
+logs/
+target/
+*.war
+*.zip
+*.tar
+*.tar.gz
+
+### gradle ignore ###
+.gradle
+
+### system ignore ###
+.DS_Store
+Thumbs.db
+
+### temp ignore ###
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
