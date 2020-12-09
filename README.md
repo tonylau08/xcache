@@ -1,0 +1,2 @@
+# xcache
+Xcache实现了Spring cache接口，采用二级缓存机制，降低网络消耗。本地缓存默认采用ConcurrentHashMap实现，采用LRU算法，但您可以根据需要进行替换；远程缓存使用自定义的RemoteCache，采用Redis作为存储仓库。
