@@ -1,44 +1,45 @@
 package com.igeeksky.xcache.extend.caffeine;
 
 
-
 import com.igeeksky.xcache.core.AbstractCacheStore;
-import com.igeeksky.xcache.core.KeyValue;
 
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 
-public class CaffeineCacheStore<K,V> extends AbstractCacheStore<K,V> {
+public class CaffeineCacheStore extends AbstractCacheStore {
 
-    public CaffeineCacheStore(String name, long expiration) {
-        super(name, expiration);
+    public CaffeineCacheStore(String name, long expireAfterWrite) {
+        super(name, expireAfterWrite);
     }
 
     @Override
-    protected ValueWrapper<V> fromStore(K key) {
-        return null;
-    }
-
-
-    @Override
-    public CompletableFuture<ValueWrapper<V>> asyncGet(K key) {
+    protected  <T> ValueWrapper<T> fromStore(Object key) {
         return null;
     }
 
     @Override
-    public CompletableFuture<V> asyncGet(K key, Class<V> type) {
+    public <T> CompletionStage<ValueWrapper<T>> asyncGet(Object key) {
         return null;
     }
 
     @Override
-    public void put(K key, V value) {
+    public <T> T get(Object key, Class<T> type) {
+        return null;
+    }
+
+    @Override
+    public <T> CompletableFuture<ValueWrapper<T>> asyncGet(Object key, Class<T> type) {
+        return null;
+    }
+
+    @Override
+    public <T> void put(Object key, T value) {
 
     }
 
-
     @Override
-    public ValueWrapper putIfAbsent(K key, V value) {
+    public <T> ValueWrapper<T> putIfAbsent(Object key, T value) {
         return null;
     }
 

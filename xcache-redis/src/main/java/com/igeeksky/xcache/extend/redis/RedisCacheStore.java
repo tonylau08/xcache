@@ -16,27 +16,20 @@
 
 package com.igeeksky.xcache.extend.redis;
 
-import com.igeeksky.xcache.core.*;
-import com.igeeksky.xcache.core.support.NullValue;
-import com.igeeksky.xcache.core.support.Serializer;
-import com.igeeksky.xcache.core.util.CollectionUtils;
-import redis.clients.jedis.Jedis;
+import com.igeeksky.xcache.core.AbstractCacheStore;
+import com.igeeksky.xcache.core.CacheListResult;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * @author Tony.Lau
  * @blog https://my.oschina.net/xcafe
  * @date 2017-02-22 16:17:03
  */
-public class RedisCacheStore<K,V> extends AbstractCacheStore<K,V> {
+public class RedisCacheStore extends AbstractCacheStore {
 
     private static final Charset CHARSET = StandardCharsets.UTF_8;
 
@@ -45,37 +38,47 @@ public class RedisCacheStore<K,V> extends AbstractCacheStore<K,V> {
     }
 
     @Override
-    protected ValueWrapper<V> fromStore(K key) {
+    protected ValueWrapper fromStore(Object o) {
         return null;
     }
 
     @Override
-    public CompletableFuture<ValueWrapper<V>> asyncGet(K key) {
+    public CompletableFuture<ValueWrapper> asyncGet(Object o) {
         return null;
     }
 
     @Override
-    public CompletableFuture<V> asyncGet(K key, Class<V> type) {
+    public CompletableFuture asyncGet(Object o, Class aClass) {
         return null;
     }
 
     @Override
-    public void put(K key, V value) {
+    public void put(Object o, Object o2) {
 
     }
 
     @Override
-    public ValueWrapper putIfAbsent(K key, V value) {
+    public CompletableFuture<CacheListResult> asyncGetAll(Collection collection, Class aClass, Class aClass1) {
         return null;
     }
 
     @Override
-    public void evict(K key) {
+    public ValueWrapper putIfAbsent(Object o, Object o2) {
+        return null;
+    }
+
+    @Override
+    public void evict(Object o) {
 
     }
 
     @Override
     public void clear() {
+
+    }
+
+    @Override
+    public void putAll(Collection collection) {
 
     }
 }

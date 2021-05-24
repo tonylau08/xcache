@@ -1,36 +1,31 @@
 package com.igeeksky.xcache.core;
 
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Patrick.Lau
  * @date 2020-12-11
  */
-public interface CacheStore<K, V> {
+public interface CacheStore {
 
-    // TODO 异步API
-    // TODO 本地缓存更新事件传播
     String getName();
 
-    ValueWrapper<V> get(K key);
+    <T> ValueWrapper<T> get(Object key);
 
+    <T> T get(Object key, Class<T> type);
 
+    <T> CompletableFuture<ValueWrapper<T>> asyncGet(Object key, Class<T> type);
 
-    V get(K key, Class<V> type);
+    <T> void put(Object key, T value);
 
-    CompletableFuture<V> asyncGet(K key, Class<V> type);
+    <T> ValueWrapper<T> putIfAbsent(Object key, T value);
 
-    void put(K key, V value);
-
-    ValueWrapper putIfAbsent(K key, V value);
-
-    void evict(K key);
+    void evict(Object key);
 
     void clear();
 
-    interface ValueWrapper<V> {
-        V getValue();
+    interface ValueWrapper<T> {
+        T getValue();
     }
 
 }

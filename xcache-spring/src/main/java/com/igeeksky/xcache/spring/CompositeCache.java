@@ -20,6 +20,7 @@ import com.igeeksky.xcache.core.*;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Patrick.Lau
@@ -35,26 +36,6 @@ public class CompositeCache extends AbstractXcache {
         super(name, backSourceSize);
         this.firstCache = firstCache;
         this.secondCache = secondCache;
-    }
-
-    @Override
-    public <K, V> void putList(Collection<KeyValue<K, V>> keyValues) {
-
-    }
-
-    @Override
-    public <K, V> void putList(Collection<V> values, String keyField, Class<K> keyType) {
-
-    }
-
-    @Override
-    public <K, V> CacheListResult<K, V> getList(Collection<K> keys, Class<K> keyType, Class<V> valueType) {
-        return null;
-    }
-
-    @Override
-    public <K, V> CacheListResult<K, V> getList(Collection<K> keys, Class<K> keyType, Class<V> valueType, ListValueLoader<K, V> valueLoader) {
-        return null;
     }
 
     @Override
@@ -92,4 +73,8 @@ public class CompositeCache extends AbstractXcache {
 
     }
 
+    @Override
+    public CompletableFuture<CacheStore.ValueWrapper> asyncGet(Object key) {
+        return null;
+    }
 }

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.igeeksky.xcache</groupId>
     <artifactId>xcache</artifactId>
-    <version>0.9.9-alpha</version>
+    <version>0.1.0-alpha</version>
     <name>xcache</name>
     <description>xcache</description>
     <packaging>pom</packaging>
@@ -51,7 +51,6 @@
         <module>xcache-core</module>
         <module>xcache-spring</module>
         <module>xcache-redis</module>
-        <module>xcache-mocha</module>
         <module>xcache-caffeine</module>
         <module>xcache-test</module>
     </modules>

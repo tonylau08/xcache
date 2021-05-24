@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.igeeksky.xcache</groupId>
         <artifactId>xcache-dependencies</artifactId>
-        <version>0.9.9-alpha</version>
+        <version>0.1.0-alpha</version>
         <relativePath/>
     </parent>
     <artifactId>xcache-core</artifactId>

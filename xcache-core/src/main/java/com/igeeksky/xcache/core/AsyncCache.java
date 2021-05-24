@@ -1,13 +1,13 @@
 package com.igeeksky.xcache.core;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 /**
  * @author Patrick.Lau
  * @date 2021-05-24
  */
-public interface AsyncCache<K, V> {
+public interface AsyncCache {
 
-    CompletableFuture<CacheStore.ValueWrapper<V>> asyncGet(K key);
+    <T> CompletionStage<CacheStore.ValueWrapper<T>> asyncGet(Object key);
 
 }

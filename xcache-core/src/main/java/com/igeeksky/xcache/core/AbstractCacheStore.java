@@ -1,8 +1,5 @@
 package com.igeeksky.xcache.core;
 
-import com.igeeksky.xcache.core.util.CollectionUtils;
-
-import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -10,7 +7,7 @@ import java.util.Objects;
  * @author Patrick.Lau
  * @date 2020-12-11
  */
-public abstract class AbstractCacheStore<K, V> implements CacheStore<K,V>, AsyncCache<K, V> {
+public abstract class AbstractCacheStore implements CacheStore, AsyncCache {
 
     private final String name;
 
@@ -27,15 +24,15 @@ public abstract class AbstractCacheStore<K, V> implements CacheStore<K,V>, Async
     }
 
     @Override
-    public ValueWrapper<V> get(K key) {
+    public <T> ValueWrapper<T> get(Object key) {
         return fromStore(key);
     }
 
     @Override
-    public V get(K key, Class<V> type) {
+    public <T> T get(Object key, Class<T> type) {
         Objects.requireNonNull(key, "Class Type must not be null");
 
-        ValueWrapper<V> wrapper = fromStore(key);
+        ValueWrapper<T> wrapper = fromStore(key);
         return fromValueWrapper(wrapper);
     }
 
@@ -51,9 +48,9 @@ public abstract class AbstractCacheStore<K, V> implements CacheStore<K,V>, Async
      *     2.2 缓存元素过期 <br>
      *     情况2由业务端决定是否需要回源查询数据 <br>
      */
-    protected abstract ValueWrapper<V> fromStore(K key);
+    protected abstract  <T> ValueWrapper<T> fromStore(Object key);
 
-    protected V fromValueWrapper(ValueWrapper<V> wrapper) {
+    protected  <T> T fromValueWrapper(ValueWrapper<T> wrapper) {
         if (null == wrapper) {
             return null;
         }
