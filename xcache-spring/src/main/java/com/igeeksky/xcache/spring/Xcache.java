@@ -16,66 +16,18 @@
 
 package com.igeeksky.xcache.spring;
 
-import com.igeeksky.xcache.core.KeyValue;
+import com.igeeksky.xcache.core.AsyncCache;
 import org.springframework.cache.Cache;
-
-import java.util.Collection;
 
 /**
  * @author Tony.Lau
  * @blog: https://my.oschina.net/xcafe
  * @createTime 2017-02-27 19:18:03
  */
-public interface Xcache extends Cache {
-
-    /**
-     * 批量保存数据到缓存
-     *
-     * @param keyValues
-     * @param <K>
-     * @param <V>
-     */
-    <K, V> void putList(Collection<KeyValue<K, V>> keyValues);
-
-    /**
-     * 批量保存数据到缓存
-     *
-     * @param values
-     * @param keyField
-     * @param keyType
-     * @param <K>
-     * @param <V>
-     */
-    <K, V> void putList(Collection<V> values, String keyField, Class<K> keyType);
-
-    /**
-     * 批量获取缓存数据
-     *
-     * @param keys
-     * @param keyType
-     * @param valueType
-     * @param <K>
-     * @param <V>
-     * @return
-     */
-    <K, V> CacheListResult<K, V> getList(Collection<K> keys, Class<K> keyType, Class<V> valueType);
-
-    /**
-     * 批量获取缓存数据，未命中缓存的执行valueLoader
-     *
-     * @param keys
-     * @param keyType
-     * @param valueType
-     * @param valueLoader
-     * @param <K>
-     * @param <V>
-     * @return
-     */
-    <K, V> CacheListResult<K, V> getList(Collection<K> keys, Class<K> keyType, Class<V> valueType,
-                                         ListValueLoader<K, V> valueLoader);
+public interface Xcache extends Cache, AsyncCache {
 
     default org.springframework.cache.Cache.ValueWrapper convert(com.igeeksky.xcache.core.CacheStore.ValueWrapper wrapper) {
-        return null == wrapper ? null : () -> wrapper.get();
+        return null == wrapper ? null : () -> wrapper.getValue();
     }
 
 }

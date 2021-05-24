@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -39,30 +40,22 @@ public class RedisCacheStore<K,V> extends AbstractCacheStore<K,V> {
 
     private static final Charset CHARSET = StandardCharsets.UTF_8;
 
-    private final Serializer<K> keySerializer;
-    private final Serializer<V> valueSerializer;
-    private final RedisKeyMetadata cacheMetadata;
-
-    private final int expiration;
-
-    private RedisOperator redisOperator;
-
-    private Jedis jedis;
-
-    public RedisCacheStore(String name, int expiration, Serializer<K> keySerializer, Serializer<V> valueSerializer) {
-        super(name, expiration);
-        this.expiration = expiration;
-        this.keySerializer = keySerializer;
-        this.valueSerializer = valueSerializer;
-        this.cacheMetadata = new RedisKeyMetadata(name, CHARSET, keySerializer);
+    public RedisCacheStore(String name, long expireAfterWrite) {
+        super(name, expireAfterWrite);
     }
 
-    protected ValueWrapper<V> toStore(K key, V value, int expiration, StoreMethod putIfAbsent) {
-        Objects.requireNonNull(key, "Cache key must not be null");
+    @Override
+    protected ValueWrapper<V> fromStore(K key) {
+        return null;
+    }
 
-        byte[] keyBytes = cacheMetadata.getKeyFullBytes(key);
-        byte[] valueBytes = valueSerializer.serialize(value);
-        redisOperator.setex(keyBytes, expiration, valueBytes);
+    @Override
+    public CompletableFuture<ValueWrapper<V>> asyncGet(K key) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<V> asyncGet(K key, Class<V> type) {
         return null;
     }
 
@@ -72,61 +65,7 @@ public class RedisCacheStore<K,V> extends AbstractCacheStore<K,V> {
     }
 
     @Override
-    public void putAll(Collection<KeyValue<K, V>> keyValues) {
-        if (CollectionUtils.isEmpty(keyValues)) {
-            return;
-        }
-
-        List keyValueList = keyValues.stream()
-                .filter(kv -> (null != kv && null != kv.key))
-                .map(kv -> new KeyValue(cacheMetadata.getKeyFullBytes(kv.key), valueSerializer.serialize(kv.value)))
-                .collect(Collectors.toList());
-
-        redisOperator.mset(keyValueList, expiration);
-    }
-
-    @Override
-    public CacheListResult<K, V> getAll(Collection<K> keys, Class<K> keyType, Class<V> valueType) {
-        if (CollectionUtils.isEmpty(keys)) {
-            return CacheListResult.emptyResult();
-        }
-
-        CacheListResult<K, V> result = CacheListResult.emptyResult();
-        keys.stream().filter(Objects::nonNull).forEach(result::addNonCacheKey);
-
-        LinkedHashSet<K> nonCacheKeys = result.getNonCacheKeys();
-        int size = nonCacheKeys.size();
-        if (size == 0) {
-            return result;
-        }
-
-        byte[][] keysArray = new byte[size][];
-        int i = 0;
-        for (K key : nonCacheKeys) {
-            byte[] keyBytes = cacheMetadata.getKeyFullBytes(key);
-            keysArray[i] = keyBytes;
-            i++;
-        }
-
-        List<byte[]> redisResultList = redisOperator.mget(keysArray);
-        if (CollectionUtils.isEmpty(redisResultList)) {
-            return result;
-        }
-
-        int j = 0;
-        for (K key : nonCacheKeys) {
-            byte[] bytes = redisResultList.get(j);
-            if (null != bytes) {
-                result.addCacheElement(new KeyValue<>(key, (V) valueSerializer.deserialize(bytes)));
-            }
-            j++;
-        }
-
-        return result;
-    }
-
-    @Override
-    public ValueWrapper<V> putIfAbsent(K key, V value) {
+    public ValueWrapper putIfAbsent(K key, V value) {
         return null;
     }
 
@@ -138,20 +77,5 @@ public class RedisCacheStore<K,V> extends AbstractCacheStore<K,V> {
     @Override
     public void clear() {
 
-    }
-
-    @Override
-    protected ValueWrapper<V> fromStore(K key) {
-        byte[] keyFullBytes = cacheMetadata.getKeyFullBytes(key);
-        byte[] valueBytes = redisOperator.get(keyFullBytes);
-        return (null == valueBytes) ? null : toValueWrapper(valueSerializer.deserialize(valueBytes));
-    }
-
-    protected ValueWrapper<V> toValueWrapper(Object value) {
-        if (null == value) {
-            return null;
-        }
-
-        return (value instanceof NullValue) ? new SimpleValueWrapper(null) : new SimpleValueWrapper(value);
     }
 }
