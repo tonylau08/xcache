@@ -3,25 +3,26 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
+        <artifactId>xcache-dependencies</artifactId>
         <groupId>com.igeeksky.xcache</groupId>
-        <artifactId>xcache</artifactId>
         <version>0.9.9-alpha</version>
+        <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>xcache-test</artifactId>
+    <artifactId>xcache-spring</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.7.0</version>
-            <scope>compile</scope>
+            <groupId>com.igeeksky.xcache</groupId>
+            <artifactId>xcache-core</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.igeeksky.xcache</groupId>
-            <artifactId>xcache-concurrentmap</artifactId>
-            <version>0.9.9-alpha</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>5.2.12.RELEASE</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

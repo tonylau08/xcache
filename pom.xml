@@ -17,25 +17,18 @@
 
     <developers>
         <developer>
-            <name>Tony.Lau</name>
-            <email>coffeelifelau@163.com</email>
+            <name>Patrick.Lau</name>
+            <email>patricklauxx@gmail.com</email>
             <url>https://my.oschina.net/xcafe</url>
         </developer>
     </developers>
 
     <properties>
-        <spring.version>4.2.9.RELEASE</spring.version>
-        <spring-data-redis.version>1.7.6.RELEASE</spring-data-redis.version>
-        <jackson.version>2.8.3</jackson.version>
-        <junit.version>4.12</junit.version>
-        <slf4j.version>1.7.21</slf4j.version>
-        <log4j.version>1.2.17</log4j.version>
-        <log4j-slf4j-impl.version>2.7</log4j-slf4j-impl.version>
-        <log4j-api.version>2.7</log4j-api.version>
-        <log4j-core.version>2.7</log4j-core.version>
-        <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
-        <java.version>1.8</java.version>
+        <java.version>8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     </properties>
 
     <build>
@@ -45,17 +38,21 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <encoding>UTF-8</encoding>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
     <modules>
+        <module>xcache-dependencies</module>
         <module>xcache-core</module>
+        <module>xcache-spring</module>
+        <module>xcache-redis</module>
+        <module>xcache-mocha</module>
+        <module>xcache-caffeine</module>
         <module>xcache-test</module>
-        <module>xcache-basic</module>
     </modules>
 </project>
