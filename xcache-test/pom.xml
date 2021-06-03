@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.igeeksky.xcache</groupId>
-        <artifactId>xcache</artifactId>
-        <version>0.9.9-alpha</version>
+        <artifactId>xcache-parent</artifactId>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,13 +15,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.7.0</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.igeeksky.xcache</groupId>
-            <artifactId>xcache-concurrentmap</artifactId>
-            <version>0.9.9-alpha</version>
         </dependency>
     </dependencies>
 
