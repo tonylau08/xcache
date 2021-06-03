@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.core.support;
+package com.igeeksky.xcache.core.extend;
 
 /**
  * @author Tony.Lau
- * @param <V>
- * @param <E>
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-03-07 06:49:37
+ * @createTime 2017-03-05 08:38:30
  */
-public interface ValueSerializer<V> extends Serializer<V> {
+public interface Serializer<T> {
 	
-	<T> T deserialize(byte[] source, Class<T> type);
+	byte[] serialize(T t);
+	
+	T deserialize(byte[] bytes);
 
 }

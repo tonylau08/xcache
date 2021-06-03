@@ -1,6 +1,6 @@
-package com.igeeksky.xcache.extend.redis;
+package com.igeeksky.xcache.support.redis;
 
-import com.igeeksky.xcache.core.support.Serializer;
+import com.igeeksky.xcache.core.extend.Serializer;
 import com.igeeksky.xcache.core.util.BytesUtils;
 
 import java.nio.charset.Charset;

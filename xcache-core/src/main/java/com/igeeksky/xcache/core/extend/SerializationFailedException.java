@@ -1,6 +1,4 @@
-package com.igeeksky.xcache.core.support;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
+package com.igeeksky.xcache.core.extend;
 
 /**
  * @author Patrick.Lau

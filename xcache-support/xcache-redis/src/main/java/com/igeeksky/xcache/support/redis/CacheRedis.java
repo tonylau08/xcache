@@ -1,8 +1,8 @@
-package com.igeeksky.xcache.extend.redis;
+package com.igeeksky.xcache.support.redis;
 
 import com.igeeksky.xcache.core.Cache;
 import com.igeeksky.xcache.core.SimpleValueWrapper;
-import com.igeeksky.xcache.core.support.Serializer;
+import com.igeeksky.xcache.core.extend.Serializer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

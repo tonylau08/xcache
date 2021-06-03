@@ -1,4 +1,4 @@
-package com.igeeksky.xcache.extend.redis;
+package com.igeeksky.xcache.support.redis;
 
 import java.util.concurrent.CompletionStage;
 

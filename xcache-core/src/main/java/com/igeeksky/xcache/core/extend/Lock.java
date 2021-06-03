@@ -1,4 +1,4 @@
-package com.igeeksky.xcache.core.support;
+package com.igeeksky.xcache.core.extend;
 
 /**
  * @author Patrick.Lau

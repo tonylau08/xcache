@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.core.support;
+package com.igeeksky.xcache.core.extend;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;

@@ -1,4 +1,4 @@
-package com.igeeksky.xcache.extend.caffeine;
+package com.igeeksky.xcache.support.caffeine;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
