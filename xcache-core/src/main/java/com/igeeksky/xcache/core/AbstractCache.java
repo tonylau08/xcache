@@ -4,7 +4,7 @@ package com.igeeksky.xcache.core;
  * @author Patrick.Lau
  * @date 2020-12-11
  */
-public abstract class AbstractCache<K, V> implements Cache<K, V>, AsyncCache<K, V> {
+public abstract class AbstractCache<K, V> implements Cache<K, V> {
 
     private final String name;
 
@@ -13,11 +13,6 @@ public abstract class AbstractCache<K, V> implements Cache<K, V>, AsyncCache<K, 
     public AbstractCache(String name, long expireAfterWrite) {
         this.name = name;
         this.expireAfterWrite = expireAfterWrite;
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     public ValueWrapper<V> get(K key) {
