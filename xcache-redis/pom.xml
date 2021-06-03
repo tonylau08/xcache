@@ -15,7 +15,8 @@
         <dependency>
             <groupId>com.igeeksky.xcache</groupId>
             <artifactId>xcache-core</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

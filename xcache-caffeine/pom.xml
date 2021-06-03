@@ -30,6 +30,7 @@
             <groupId>com.igeeksky.xcache</groupId>
             <artifactId>xcache-core</artifactId>
             <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

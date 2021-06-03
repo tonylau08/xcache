@@ -16,12 +16,11 @@
 
 package com.igeeksky.xcache.extend.redis;
 
+
 import com.igeeksky.xcache.core.AbstractCacheStore;
-import com.igeeksky.xcache.core.CacheListResult;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -58,11 +57,6 @@ public class RedisCacheStore extends AbstractCacheStore {
     }
 
     @Override
-    public CompletableFuture<CacheListResult> asyncGetAll(Collection collection, Class aClass, Class aClass1) {
-        return null;
-    }
-
-    @Override
     public ValueWrapper putIfAbsent(Object o, Object o2) {
         return null;
     }
@@ -77,8 +71,4 @@ public class RedisCacheStore extends AbstractCacheStore {
 
     }
 
-    @Override
-    public void putAll(Collection collection) {
-
-    }
 }

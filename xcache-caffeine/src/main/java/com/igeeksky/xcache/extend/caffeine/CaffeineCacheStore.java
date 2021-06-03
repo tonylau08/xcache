@@ -14,7 +14,7 @@ public class CaffeineCacheStore extends AbstractCacheStore {
     }
 
     @Override
-    protected  <T> ValueWrapper<T> fromStore(Object key) {
+    protected <T> ValueWrapper<T> fromStore(Object key) {
         return null;
     }
 
