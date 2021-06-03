@@ -35,6 +35,7 @@ target/
 *.zip
 *.tar
 *.tar.gz
+*.flattened-pom.xml
 
 ### gradle ignore ###
 .gradle
