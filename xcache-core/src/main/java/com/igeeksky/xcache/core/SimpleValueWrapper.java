@@ -1,14 +1,14 @@
 package com.igeeksky.xcache.core;
 
-public class SimpleValueWrapper implements CacheStore.ValueWrapper {
+public class SimpleValueWrapper<V> implements Cache.ValueWrapper {
 
-    private final Object value;
+    private final V value;
 
-    public SimpleValueWrapper(Object value) {
+    public SimpleValueWrapper(V value) {
         this.value = value;
     }
 
-    public Object getValue() {
+    public V getValue() {
         return this.value;
     }
 }

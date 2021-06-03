@@ -46,9 +46,8 @@
         <module>xcache-dependencies</module>
         <module>xcache-core</module>
         <module>xcache-spring</module>
-        <module>xcache-redis</module>
-        <module>xcache-caffeine</module>
         <module>xcache-test</module>
+        <module>xcache-support</module>
     </modules>
 
     <dependencyManagement>
