@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Tony.lau All rights reserved.
+ * Copyright 2017 Patrick.lau All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.igeeksky.xcache.core.extend;
 
 /**
- * @author Tony.Lau
+ * @author Patrick.Lau
  * @blog: https://my.oschina.net/xcafe
  * @createTime 2017-03-05 08:38:30
  */

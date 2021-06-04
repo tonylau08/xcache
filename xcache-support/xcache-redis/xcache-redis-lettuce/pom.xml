@@ -5,12 +5,23 @@
     <parent>
         <artifactId>xcache-redis</artifactId>
         <groupId>com.igeeksky.xcache</groupId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>xcache-redis-lettuce</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.igeeksky.xcache</groupId>
+            <artifactId>xcache-redis-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+        </dependency>
+    </dependencies>
 
 
 </project>

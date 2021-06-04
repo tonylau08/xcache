@@ -17,14 +17,17 @@ public final class NullValue implements Serializable {
         return INSTANCE;
     }
 
+    @Override
     public boolean equals(Object obj) {
         return this == obj || obj == null;
     }
 
+    @Override
     public int hashCode() {
         return NullValue.class.hashCode();
     }
 
+    @Override
     public String toString() {
         return "null";
     }

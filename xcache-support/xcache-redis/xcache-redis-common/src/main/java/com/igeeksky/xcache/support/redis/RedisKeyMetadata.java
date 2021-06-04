@@ -6,6 +6,9 @@ import com.igeeksky.xcache.core.util.BytesUtils;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+/**
+ * @author Patrick.Lau
+ */
 public class RedisKeyMetadata<K> {
 
     private final Charset charset;
