@@ -1,16 +1,18 @@
-package com.igeeksky.xcache.core;
+package com.igeeksky.xcache.core.sync;
+
+import com.igeeksky.xcache.core.ValueWrapper;
 
 /**
  * @author Patrick.Lau
  * @date 2020-12-11
  */
-public abstract class AbstractCache<K, V> implements Cache<K, V> {
+public abstract class AbstractSyncCache<K, V> implements SyncCache<K, V> {
 
     private final String name;
 
     protected final long expireAfterWrite;
 
-    public AbstractCache(String name, long expireAfterWrite) {
+    public AbstractSyncCache(String name, long expireAfterWrite) {
         this.name = name;
         this.expireAfterWrite = expireAfterWrite;
     }

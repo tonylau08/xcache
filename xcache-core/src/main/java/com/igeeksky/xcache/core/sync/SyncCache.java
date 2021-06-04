@@ -1,4 +1,6 @@
-package com.igeeksky.xcache.core;
+package com.igeeksky.xcache.core.sync;
+
+import com.igeeksky.xcache.core.ValueWrapper;
 
 import java.util.Map;
 import java.util.Set;
@@ -7,7 +9,7 @@ import java.util.Set;
  * @author Patrick.Lau
  * @date 2020-12-11
  */
-public interface Cache<K, V> {
+public interface SyncCache<K, V> {
 
     ValueWrapper<V> get(K key);
 

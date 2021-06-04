@@ -7,5 +7,4 @@ package com.igeeksky.xcache.core.statistics;
 public class RecordCount {
 
 
-
 }

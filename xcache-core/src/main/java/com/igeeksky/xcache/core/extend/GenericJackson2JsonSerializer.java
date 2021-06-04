@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.igeeksky.xcache.core.exception.SerializationFailedException;
 import com.igeeksky.xcache.core.util.BytesUtils;
 import com.igeeksky.xcache.core.util.StringUtils;
 

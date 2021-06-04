@@ -3,19 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
+        <artifactId>xcache-redis</artifactId>
         <groupId>com.igeeksky.xcache</groupId>
-        <artifactId>xcache-support</artifactId>
-        <version>${revision}</version>
+        <version>0.0.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>xcache-redis</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>xcache-redis-lettuce</artifactId>
 
-    <modules>
-        <module>xcache-redis-common</module>
-        <module>xcache-redis-lettuce</module>
-    </modules>
 
 
 </project>

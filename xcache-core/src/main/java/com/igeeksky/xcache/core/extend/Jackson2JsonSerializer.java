@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.igeeksky.xcache.core.exception.SerializationFailedException;
 import com.igeeksky.xcache.core.util.BytesUtils;
 
 import java.util.Objects;

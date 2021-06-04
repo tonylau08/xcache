@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * @author Patrick.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-03-02 18:28:37
+ * @date 2017-03-02 18:28:37
  */
 public class BeanUtils {
 

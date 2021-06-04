@@ -19,8 +19,8 @@ package com.igeeksky.xcache.core.util;
 import java.util.Arrays;
 
 /**
- * @author Tony.Lau
- * @blog: https://my.oschina.net/xcafe
+ * @author Patrick.Lau
+ * @blog https://my.oschina.net/xcafe
  * @date 2017-03-01 05:09:16
  */
 public class BytesUtils {

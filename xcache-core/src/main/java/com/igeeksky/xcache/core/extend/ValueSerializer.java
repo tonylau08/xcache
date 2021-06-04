@@ -1,10 +1,10 @@
 /*
  * Copyright 2017 Tony.lau All rights reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -17,14 +17,12 @@
 package com.igeeksky.xcache.core.extend;
 
 /**
- * @author Tony.Lau
- * @param <V>
- * @param <E>
+ * @author Patrick.Lau
  * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-03-07 06:49:37
+ * @date 2017-03-07 06:49:37
  */
 public interface ValueSerializer<V> extends Serializer<V> {
-	
-	<T> T deserialize(byte[] source, Class<T> type);
+
+    <T> T deserialize(byte[] source, Class<T> type);
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.igeeksky.xcache.core.extend;
+package com.igeeksky.xcache.core.exception;
 
 
 /**
