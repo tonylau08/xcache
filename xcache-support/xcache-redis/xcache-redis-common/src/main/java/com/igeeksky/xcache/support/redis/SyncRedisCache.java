@@ -1,6 +1,6 @@
 package com.igeeksky.xcache.support.redis;
 
-import com.igeeksky.xcache.core.Cache;
+import com.igeeksky.xcache.core.sync.SyncCache;
 import com.igeeksky.xcache.core.ValueWrapper;
 
 import java.util.Map;
@@ -10,8 +10,7 @@ import java.util.Set;
  * @author Patrick.Lau
  * @date 2021-06-03
  */
-public class SyncRedisCache<K, V> implements Cache<K, V> {
-
+public class SyncRedisCache<K, V> implements SyncCache<K, V> {
 
 
     @Override
