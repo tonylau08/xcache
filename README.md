@@ -1,2 +1,2 @@
 # xcache
-Xcache实现了Spring cache接口，采用二级缓存机制，降低网络消耗。
+Xcache is two-level cache framwork。local cache use Caffeine，remote cache use redis, but you can extend and change it.
