@@ -10,12 +10,12 @@ import java.util.concurrent.Callable;
  * @author Patrick.Lau
  * @date 2021-06-03
  */
-public class XcacheSpring<V> implements Cache {
+public class XcacheSpring implements Cache {
 
     private final String name;
-    private final Xcache<Object, V> xcache;
+    private final Xcache<Object, Object> xcache;
 
-    public XcacheSpring(String name, Xcache<Object, V> xcache) {
+    public XcacheSpring(String name, Xcache<Object, Object> xcache) {
         this.name = name;
         this.xcache = xcache;
     }
@@ -32,12 +32,12 @@ public class XcacheSpring<V> implements Cache {
 
     @Override
     public ValueWrapper get(Object key) {
-        com.igeeksky.xcache.core.ValueWrapper<V> wrapper = xcache.sync().get(key);
+        com.igeeksky.xcache.core.ValueWrapper<Object> wrapper = xcache.sync().get(key);
         return toValueWrapper(wrapper);
     }
 
     @Nullable
-    private ValueWrapper toValueWrapper(com.igeeksky.xcache.core.ValueWrapper<V> wrapper) {
+    private ValueWrapper toValueWrapper(com.igeeksky.xcache.core.ValueWrapper<Object> wrapper) {
         if (null != wrapper) {
             return () -> wrapper.getValue();
         }
@@ -46,13 +46,13 @@ public class XcacheSpring<V> implements Cache {
 
     @Override
     public <T> T get(Object key, Class<T> type) {
-        com.igeeksky.xcache.core.ValueWrapper<V> wrapper = xcache.sync().get(key);
+        com.igeeksky.xcache.core.ValueWrapper<Object> wrapper = xcache.sync().get(key);
         return null == wrapper ? null : (T) wrapper.getValue();
     }
 
     @Override
     public <T> T get(Object key, Callable<T> valueLoader) {
-        com.igeeksky.xcache.core.ValueWrapper<V> wrapper = xcache.sync().get(key);
+        com.igeeksky.xcache.core.ValueWrapper<Object> wrapper = xcache.sync().get(key);
         if (null != wrapper) {
             return (T) wrapper.getValue();
         }
@@ -67,31 +67,17 @@ public class XcacheSpring<V> implements Cache {
 
     @Override
     public void put(Object key, Object value) {
-
-    }
-
-    @Override
-    public ValueWrapper putIfAbsent(Object key, Object value) {
-        return Cache.super.putIfAbsent(key, value);
+        xcache.sync().put(key, value);
     }
 
     @Override
     public void evict(Object key) {
-
-    }
-
-    @Override
-    public boolean evictIfPresent(Object key) {
-        return Cache.super.evictIfPresent(key);
+        xcache.sync().remove(key);
     }
 
     @Override
     public void clear() {
-
+        xcache.sync().clear();
     }
 
-    @Override
-    public boolean invalidate() {
-        return Cache.super.invalidate();
-    }
 }
