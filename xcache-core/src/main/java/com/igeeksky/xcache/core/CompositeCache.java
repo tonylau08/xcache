@@ -76,7 +76,7 @@ public class CompositeCache<K, V> implements XCache<K, V> {
     }
 
     @Override
-    public Map<K, CompletableFuture<CacheValue<V>>> asyncGetAll(Set<? extends K> keys) {
+    public CompletableFuture<Map<K, CacheValue<V>>> asyncGetAll(Set<? extends K> keys) {
         return null;
     }
 

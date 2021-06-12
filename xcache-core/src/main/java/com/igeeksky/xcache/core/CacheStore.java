@@ -27,7 +27,7 @@ public interface CacheStore<K, V> extends Closeable {
 
     CompletableFuture<CacheValue<V>> asyncGet(K key);
 
-    Map<K, CompletableFuture<CacheValue<V>>> asyncGetAll(Set<? extends K> keys);
+    CompletableFuture<Map<K, CacheValue<V>>> asyncGetAll(Set<? extends K> keys);
 
     CompletableFuture<Void> asyncPutAll(CompletableFuture<Map<? extends K, ? extends V>> keyValuesFuture);
 

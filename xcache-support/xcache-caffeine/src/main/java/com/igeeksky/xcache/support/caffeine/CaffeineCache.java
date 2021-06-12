@@ -80,13 +80,8 @@ public class CaffeineCache<K, V> implements CacheStore<K, V> {
     }
 
     @Override
-    public Map<K, CompletableFuture<CacheValue<V>>> asyncGetAll(Set<? extends K> keys) {
-        Map<K, CompletableFuture<CacheValue<V>>> futureMap = new LinkedHashMap<>();
-        keys.forEach(k -> {
-            CompletableFuture<CacheValue<V>> valueFuture = asyncCache.getIfPresent(k);
-            futureMap.put(k, valueFuture);
-        });
-        return futureMap;
+    public CompletableFuture<Map<K, CacheValue<V>>> asyncGetAll(Set<? extends K> keys) {
+        return CompletableFuture.completedFuture(getAll(keys));
     }
 
     @Override

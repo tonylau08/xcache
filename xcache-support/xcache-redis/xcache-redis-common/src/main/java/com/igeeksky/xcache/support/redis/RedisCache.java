@@ -7,6 +7,7 @@ import com.igeeksky.xcache.core.SimpleCacheValue;
 import com.igeeksky.xcache.core.extend.KeyGenerator;
 import com.igeeksky.xcache.core.extend.Serializer;
 import com.igeeksky.xcache.core.util.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -62,23 +63,34 @@ public class RedisCache<K, V> implements CacheStore<K, V> {
     @Override
     public Map<K, CacheValue<V>> getAll(Set<? extends K> keys) {
         if (CollectionUtils.isNotEmpty(keys)) {
-            String[] stringKeys = new String[keys.size()];
-            int i = 0;
-            for (K key : keys) {
-                stringKeys[i] = serializeKey(key);
-                i++;
-            }
+            String[] stringKeys = toStringKeys(keys);
             List<KeyValue<String, String>> keyValues = redisClient.mget(stringKeys);
-            Map<K, CacheValue<V>> cacheValueMap = new HashMap<>(keyValues.size());
-            keyValues.forEach(kv -> {
-                if (null != kv) {
-                    V value = deserializeValue(kv.getValue());
-                    cacheValueMap.put(deserializeKey(kv.getKey()), toCacheValue(value));
-                }
-            });
-            return cacheValueMap;
+            return toCacheValueMap(keyValues);
         }
         return Collections.emptyMap();
+    }
+
+    @NotNull
+    private Map<K, CacheValue<V>> toCacheValueMap(List<KeyValue<String, String>> keyValues) {
+        Map<K, CacheValue<V>> cacheValueMap = new HashMap<>(keyValues.size());
+        keyValues.forEach(kv -> {
+            if (null != kv) {
+                V value = deserializeValue(kv.getValue());
+                cacheValueMap.put(deserializeKey(kv.getKey()), toCacheValue(value));
+            }
+        });
+        return cacheValueMap;
+    }
+
+    @NotNull
+    private String[] toStringKeys(Set<? extends K> keys) {
+        String[] stringKeys = new String[keys.size()];
+        int i = 0;
+        for (K key : keys) {
+            stringKeys[i] = serializeKey(key);
+            i++;
+        }
+        return stringKeys;
     }
 
     @Override
@@ -101,22 +113,27 @@ public class RedisCache<K, V> implements CacheStore<K, V> {
 
     @Override
     public void remove(K key) {
-
+        redisClient.del(serializeKey(key));
     }
 
     @Override
     public void clear() {
-
+        throw new UnsupportedOperationException("redis string cache don't support clear operation");
     }
 
     @Override
     public CompletableFuture<CacheValue<V>> asyncGet(K key) {
-        return null;
+        return redisClient
+                .asyncGet(serializeKey(key))
+                .thenApply(this::deserializeValue)
+                .thenApply(this::toCacheValue);
     }
 
     @Override
-    public Map<K, CompletableFuture<CacheValue<V>>> asyncGetAll(Set<? extends K> keys) {
-        return null;
+    public CompletableFuture<Map<K, CacheValue<V>>> asyncGetAll(Set<? extends K> keys) {
+        return redisClient
+                .asyncMget(toStringKeys(keys))
+                .thenApply(this::toCacheValueMap);
     }
 
     @Override

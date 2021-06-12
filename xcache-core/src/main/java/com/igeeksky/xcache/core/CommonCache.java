@@ -191,10 +191,10 @@ public class CommonCache<K, V> implements XCache<K, V>, RefreshCache {
     }
 
     @Override
-    public Map<K, CompletableFuture<CacheValue<V>>> asyncGetAll(Set<? extends K> keys) {
-        Map<K, CompletableFuture<CacheValue<V>>> futureMap = cacheStore.asyncGetAll(keys);
+    public CompletableFuture<Map<K, CacheValue<V>>> asyncGetAll(Set<? extends K> keys) {
+        CompletableFuture<Map<K, CacheValue<V>>> futureMap = cacheStore.asyncGetAll(keys);
         if (allowRecord) {
-            return statisticsHolder.asyncRecordGetAll(futureMap);
+            statisticsHolder.asyncRecordGetAll(futureMap);
         }
         return futureMap;
     }

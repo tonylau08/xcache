@@ -88,10 +88,8 @@ public class CacheStatisticsHolder {
         // TODO 统计
     }
 
-    public <K, V> Map<K, CompletableFuture<CacheValue<V>>> asyncRecordGetAll(Map<K, CompletableFuture<CacheValue<V>>> futureMap) {
-        futureMap.forEach((key, future) -> {
-            asyncRecordGets(future);
-        });
-        return futureMap;
+    public <K, V> Map<K, CompletableFuture<CacheValue<V>>> asyncRecordGetAll(CompletableFuture<Map<K, CacheValue<V>>> futureMap) {
+
+        return null;
     }
 }
