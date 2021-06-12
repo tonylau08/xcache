@@ -4,12 +4,12 @@ import com.igeeksky.xcache.core.extend.LockSupport;
 import com.igeeksky.xcache.core.refresh.RefreshCache;
 import com.igeeksky.xcache.core.refresh.RefreshEvent;
 import com.igeeksky.xcache.core.statistic.CacheStatisticsHolder;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -64,7 +64,7 @@ public class CommonCache<K, V> implements XCache<K, V>, RefreshCache {
     }
 
     protected CacheValue<V> doGet(K key) {
-        return cacheStore.get(key);
+        return cacheStore.get(key).block();
     }
 
     @Override
@@ -105,7 +105,13 @@ public class CommonCache<K, V> implements XCache<K, V>, RefreshCache {
     }
 
     private Map<K, CacheValue<V>> doGetAll(Set<? extends K> keys) {
-        return cacheStore.getAll(keys);
+        return reactiveGetAll(keys).collectList().map(keyValues -> {
+            Map<K, CacheValue<V>> map = new HashMap<>();
+            keyValues.forEach(kv -> {
+                map.put(kv.getKey(), kv.getValue());
+            });
+            return map;
+        }).block();
     }
 
     @Override
@@ -118,19 +124,19 @@ public class CommonCache<K, V> implements XCache<K, V>, RefreshCache {
         // TODO 空值缓存，过期时间短
         // TODO 是否允许空值
         if (null != value || allowNullValue) {
-            return cacheStore.put(key, value);
+            return cacheStore.put(key, Mono.justOrEmpty(value)).block();
         }
         return null;
     }
 
     @Override
     public void putAll(Map<? extends K, ? extends V> keyValues) {
-        cacheStore.putAll(keyValues);
+        cacheStore.putAll(Mono.justOrEmpty(keyValues)).block();
     }
 
     @Override
     public void remove(K key) {
-        cacheStore.remove(key);
+        reactiveRemove(key).block();
     }
 
     @Override
@@ -145,12 +151,12 @@ public class CommonCache<K, V> implements XCache<K, V>, RefreshCache {
 
     @Override
     public CompletableFuture<CacheValue<V>> asyncGet(K key) {
-        CompletableFuture<CacheValue<V>> future = cacheStore.asyncGet(key);
+        CompletableFuture<CacheValue<V>> future = cacheStore.get(key).toFuture();
         return allowRecord ? statisticsHolder.asyncRecordGets(future) : future;
     }
 
     public CompletableFuture<CacheValue<V>> asyncGet(K key, Callable<V> valueLoader) {
-        CompletableFuture<CacheValue<V>> future = cacheStore.asyncGet(key);
+        CompletableFuture<CacheValue<V>> future = cacheStore.get(key).toFuture();
         future.thenCompose(vCacheValue -> {
             if (null == vCacheValue) {
                 if (containsPredicate.test(key)) {
@@ -169,7 +175,6 @@ public class CommonCache<K, V> implements XCache<K, V>, RefreshCache {
         return asyncPut(key, getValueFuture(key, valueLoader));
     }
 
-    @NotNull
     private CompletableFuture<V> getValueFuture(K key, Callable<V> valueLoader) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -192,7 +197,13 @@ public class CommonCache<K, V> implements XCache<K, V>, RefreshCache {
 
     @Override
     public CompletableFuture<Map<K, CacheValue<V>>> asyncGetAll(Set<? extends K> keys) {
-        CompletableFuture<Map<K, CacheValue<V>>> futureMap = cacheStore.asyncGetAll(keys);
+        CompletableFuture<Map<K, CacheValue<V>>> futureMap = cacheStore.getAll(keys).collectList().map(keyValues -> {
+            Map<K, CacheValue<V>> map = new HashMap<>();
+            keyValues.forEach(kv -> {
+                map.put(kv.getKey(), kv.getValue());
+            });
+            return map;
+        }).toFuture();
         if (allowRecord) {
             statisticsHolder.asyncRecordGetAll(futureMap);
         }
@@ -201,47 +212,42 @@ public class CommonCache<K, V> implements XCache<K, V>, RefreshCache {
 
     @Override
     public CompletableFuture<Void> asyncPutAll(CompletableFuture<Map<? extends K, ? extends V>> keyValues) {
-        return cacheStore.asyncPutAll(keyValues);
+        return cacheStore.putAll(Mono.fromFuture(keyValues)).toFuture();
     }
 
     @Override
     public CompletableFuture<Void> asyncPut(K key, CompletableFuture<V> valueFuture) {
-        return valueFuture.thenCompose(value -> {
-            if (null != value || allowNullValue) {
-                return cacheStore.asyncPut(key, CompletableFuture.completedFuture(value));
-            }
-            return null;
-        });
+        return reactivePut(key, Mono.fromFuture(valueFuture)).toFuture();
     }
 
     @Override
     public CompletableFuture<Void> asyncRemove(K key) {
-        return cacheStore.asyncRemove(key);
+        return reactiveRemove(key).toFuture();
     }
 
     @Override
     public Mono<CacheValue<V>> reactiveGet(K key) {
-        return cacheStore.reactiveGet(key);
+        return cacheStore.get(key);
     }
 
     @Override
     public Flux<KeyValue<K, CacheValue<V>>> reactiveGetAll(Set<? extends K> keys) {
-        return cacheStore.reactiveGetAll(keys);
+        return cacheStore.getAll(keys);
     }
 
     @Override
     public Mono<Void> reactivePutAll(Mono<Map<? extends K, ? extends V>> keyValues) {
-        return cacheStore.reactivePutAll(keyValues);
+        return cacheStore.putAll(keyValues);
     }
 
     @Override
     public Mono<Void> reactivePut(K key, Mono<V> value) {
-        return cacheStore.reactivePut(key, value);
+        return cacheStore.put(key, value).then();
     }
 
     @Override
     public Mono<Void> reactiveRemove(K key) {
-        return cacheStore.reactiveRemove(key);
+        return cacheStore.remove(key).then();
     }
 
 }

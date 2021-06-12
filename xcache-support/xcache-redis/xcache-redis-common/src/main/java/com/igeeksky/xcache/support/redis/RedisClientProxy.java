@@ -17,35 +17,24 @@ public interface RedisClientProxy {
 
     static final String OK = "OK";
 
-    String get(String key);
+    Mono<String> get(String key);
 
-    List<KeyValue<String, String>> mget(String... keys);
+    Flux<KeyValue<String, String>> mget(String... keys);
 
-    String hget(String key, String field);
+    Mono<Void> set(String key, String value);
 
-    void set(String key, String value);
+    Mono<Void> mset(Map<String, String> keyValues);
 
-    void mset(Map<String, String> keyValues);
+    Mono<Long> del(String... keys);
 
-    Long del(String... key);
+    Mono<String> hget(String key, String field);
 
-    CompletableFuture<String> asyncGet(String key);
+    Flux<KeyValue<String, String>> hmget(String key, String... field);
 
-    CompletableFuture<List<KeyValue<String, String>>> asyncMget(String[] toStringKeys);
+    Mono<Boolean> hset(String key, String field, String value);
 
-    CompletableFuture<Void> asyncSet(String key, String value);
+    Mono<Void> hmset(String key, Map<String, String> map);
 
-    CompletableFuture<Void> asyncMset(Map<String, String> keyValues);
+    Mono<Long> hdel(String key, String... fields);
 
-    CompletableFuture<Long> asyncDel(String... keys);
-
-    Mono<String> reactiveGet(String key);
-
-    Flux<KeyValue<String, String>> reactiveMget(String[] toStringKeys);
-
-    Mono<Void> reactiveSet(String key, String value);
-
-    Mono<Void> reactiveMset(Map<String, String> keyValues);
-
-    Mono<Long> reactiveDel(String... keys);
 }

@@ -18,7 +18,7 @@
         <slf4j.version>1.7.29</slf4j.version>
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
         <jetbrains-annotations.version>17.0.0</jetbrains-annotations.version>
-        <revision>0.0.2-SNAPSHOT</revision>
+        <revision>0.0.3-SNAPSHOT</revision>
     </properties>
 
     <dependencyManagement>
@@ -28,6 +28,53 @@
                 <artifactId>xcache-core</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>com.igeeksky.xcache</groupId>
+                <artifactId>xcache-annotations</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.igeeksky.xcache</groupId>
+                <artifactId>xcache-extend</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.igeeksky.xcache</groupId>
+                <artifactId>xcache-serializer-jackson</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.igeeksky.xcache</groupId>
+                <artifactId>xcache-spring</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.igeeksky.xcache</groupId>
+                <artifactId>xcache-support</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.igeeksky.xcache</groupId>
+                <artifactId>xcache-caffeine</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.igeeksky.xcache</groupId>
+                <artifactId>xcache-redis</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.igeeksky.xcache</groupId>
+                <artifactId>xcache-redis-common</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.igeeksky.xcache</groupId>
+                <artifactId>xcache-redis-lettuce</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!--ThirdParty start-->
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
                 <artifactId>caffeine</artifactId>
