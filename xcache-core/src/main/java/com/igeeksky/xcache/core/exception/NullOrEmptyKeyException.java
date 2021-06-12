@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Tony.lau All rights reserved.
+ * Copyright 2017 Patrick.lau All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package com.igeeksky.xcache.core.exception;
 
 
 /**
- * @author Tony.Lau
- * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-03-05 07:58:20
+ * @author Patrick.Lau
+ * @date 2017-03-05 07:58:20
  */
 public class NullOrEmptyKeyException extends RuntimeException {
 

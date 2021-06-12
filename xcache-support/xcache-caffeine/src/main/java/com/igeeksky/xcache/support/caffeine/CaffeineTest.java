@@ -1,13 +1,12 @@
 package com.igeeksky.xcache.support.caffeine;
 
+import com.github.benmanes.caffeine.cache.AsyncCache;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Patrick.Lau
@@ -50,28 +49,48 @@ public class CaffeineTest {
     }
 
     @Test
-    public void testAsync() {
-
+    public void testAsync() throws ExecutionException, InterruptedException {
+        CompletableFuture<String> future = CompletableFuture.completedFuture("aa");
+        testFuture(future).thenAccept(s -> {
+            System.out.println("END:" + s);
+        }).get();
     }
+
+    private CompletableFuture<String> testFuture(CompletableFuture<String> future) {
+        return future.thenCompose(s -> {
+            return sa().thenApply(v -> {
+                return s;
+            });
+        });
+    }
+
+    public CompletableFuture<Void> sa() {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                throw new RuntimeException("error");
+            } catch (Exception e) {
+
+            }
+        });
+    }
+
 
     /**
      *
      */
     @Test
     public void testFrequencyDelete() throws InterruptedException {
-        Cache<Object, Object> cache = Caffeine.newBuilder()
+        AsyncCache<Object, Object> cache = Caffeine.newBuilder()
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .maximumSize(128)
-                .build();
+                .buildAsync();
 
 
         for (int i = 0; i < 20; i++) {
-            new Thread(() -> {
-                Random random = ThreadLocalRandom.current();
-                for (int j = 0; j < 10000; j++) {
-                    cache.put("a" + random.nextInt(12800), "a" + random.nextInt(12800));
-                }
-            }).start();
+            Random random = ThreadLocalRandom.current();
+            for (int j = 0; j < 10000; j++) {
+                cache.synchronous().put("a" + j, "a" + random.nextInt(12800));
+            }
         }
 
         for (int i = 0; i < 20; i++) {

@@ -48,6 +48,8 @@
         <module>xcache-spring</module>
         <module>xcache-test</module>
         <module>xcache-support</module>
+        <module>xcache-annotations</module>
+        <module>xcache-extend</module>
     </modules>
 
     <dependencyManagement>

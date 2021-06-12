@@ -1,8 +1,8 @@
 package com.igeeksky.xcache.spring;
 
-import com.igeeksky.xcache.core.Xcache;
+import com.igeeksky.xcache.core.CacheValue;
+import com.igeeksky.xcache.core.XCache;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.cache.Cache;
 
 import java.util.concurrent.Callable;
 
@@ -10,12 +10,12 @@ import java.util.concurrent.Callable;
  * @author Patrick.Lau
  * @date 2021-06-03
  */
-public class XcacheSpring implements Cache {
+public class XcacheSpring implements org.springframework.cache.Cache {
 
     private final String name;
-    private final Xcache<Object, Object> xcache;
+    private final XCache<Object, Object> xcache;
 
-    public XcacheSpring(String name, Xcache<Object, Object> xcache) {
+    public XcacheSpring(String name, XCache<Object, Object> xcache) {
         this.name = name;
         this.xcache = xcache;
     }
@@ -32,52 +32,40 @@ public class XcacheSpring implements Cache {
 
     @Override
     public ValueWrapper get(Object key) {
-        com.igeeksky.xcache.core.ValueWrapper<Object> wrapper = xcache.sync().get(key);
-        return toValueWrapper(wrapper);
+        CacheValue<Object> cacheValue = xcache.get(key);
+        return toValueWrapper(cacheValue);
     }
 
     @Nullable
-    private ValueWrapper toValueWrapper(com.igeeksky.xcache.core.ValueWrapper<Object> wrapper) {
-        if (null != wrapper) {
-            return () -> wrapper.getValue();
-        }
-        return null;
+    private ValueWrapper toValueWrapper(CacheValue<Object> wrapper) {
+        return null == wrapper ? null : (() -> wrapper.getValue());
     }
 
     @Override
     public <T> T get(Object key, Class<T> type) {
-        com.igeeksky.xcache.core.ValueWrapper<Object> wrapper = xcache.sync().get(key);
-        return null == wrapper ? null : (T) wrapper.getValue();
+        CacheValue<Object> cacheValue = xcache.get(key);
+        return null == cacheValue ? null : (T) cacheValue.getValue();
     }
 
     @Override
     public <T> T get(Object key, Callable<T> valueLoader) {
-        com.igeeksky.xcache.core.ValueWrapper<Object> wrapper = xcache.sync().get(key);
-        if (null != wrapper) {
-            return (T) wrapper.getValue();
-        }
-        try {
-            return valueLoader.call();
-        } catch (Exception e) {
-            //TODO 修改为重试错误
-            e.printStackTrace();
-        }
-        return null;
+        CacheValue<Object> cacheValue = xcache.get(key, () -> valueLoader.call());
+        return null == cacheValue ? null : (T) cacheValue.getValue();
     }
 
     @Override
     public void put(Object key, Object value) {
-        xcache.sync().put(key, value);
+        xcache.put(key, value);
     }
 
     @Override
     public void evict(Object key) {
-        xcache.sync().remove(key);
+        xcache.remove(key);
     }
 
     @Override
     public void clear() {
-        xcache.sync().clear();
+        xcache.clear();
     }
 
 }
