@@ -17,24 +17,24 @@ public interface RedisClientProxy {
 
     static final String OK = "OK";
 
-    Mono<String> get(String key);
+    Mono<byte[]> get(byte[] key);
 
-    Flux<KeyValue<String, String>> mget(String... keys);
+    Flux<KeyValue<byte[], byte[]>> mget(byte[]... keys);
 
-    Mono<Void> set(String key, String value);
+    Mono<Void> set(byte[] key, byte[] value);
 
-    Mono<Void> mset(Map<String, String> keyValues);
+    Mono<Void> mset(Map<byte[], byte[]> keyValues);
 
-    Mono<Long> del(String... keys);
+    Mono<Long> del(byte[]... keys);
 
-    Mono<String> hget(String key, String field);
+    Mono<byte[]> hget(byte[] key, byte[] field);
 
-    Flux<KeyValue<String, String>> hmget(String key, String... field);
+    Flux<KeyValue<byte[], byte[]>> hmget(byte[] key, byte[]... field);
 
-    Mono<Boolean> hset(String key, String field, String value);
+    Mono<Boolean> hset(byte[] key, byte[] field, byte[] value);
 
-    Mono<Void> hmset(String key, Map<String, String> map);
+    Mono<Void> hmset(byte[] key, Map<byte[], byte[]> map);
 
-    Mono<Long> hdel(String key, String... fields);
+    Mono<Long> hdel(byte[] key, byte[]... fields);
 
 }

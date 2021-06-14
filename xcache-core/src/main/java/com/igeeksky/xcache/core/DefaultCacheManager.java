@@ -3,23 +3,24 @@ package com.igeeksky.xcache.core;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Patrick.Lau
  * @date 2021-06-10
  */
-public class XCacheManager implements CacheManager {
+public class DefaultCacheManager implements CacheManager {
 
-    protected ConcurrentHashMap<String, XCache> caches;
+    protected ConcurrentMap<String, Cache<?, ?>> caches = new ConcurrentHashMap<>();
     protected CacheBuilder cacheBuilder;
 
     @Override
-    public XCache get(String name) {
-        return caches.computeIfAbsent(name, key -> cacheBuilder.build(key));
+    public Cache get(String name) {
+        return caches.computeIfAbsent(name, cacheName -> cacheBuilder.build(cacheName));
     }
 
     @Override
-    public Collection<XCache> getAll() {
+    public Collection<Cache> getAll() {
         return null;
     }
 

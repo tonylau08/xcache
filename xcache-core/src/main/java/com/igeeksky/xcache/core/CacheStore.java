@@ -19,7 +19,7 @@ public interface CacheStore<K, V> {
 
     Mono<Void> putAll(Mono<Map<? extends K, ? extends V>> keyValues);
 
-    Mono<CacheValue<V>> remove(K key);
+    Mono<Void> remove(K key);
 
     void clear();
 

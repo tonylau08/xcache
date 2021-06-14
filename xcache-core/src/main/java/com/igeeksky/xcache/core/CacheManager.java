@@ -8,9 +8,9 @@ import java.util.Collection;
  */
 public interface CacheManager {
 
-    XCache get(String name);
+    Cache get(String name);
 
-    Collection<XCache> getAll();
+    Collection<Cache> getAll();
 
     Collection<String> getAllCacheNames();
 

@@ -6,6 +6,7 @@ import com.igeeksky.xcache.core.KeyValue;
 import com.igeeksky.xcache.core.SimpleCacheValue;
 import com.igeeksky.xcache.core.extend.KeyGenerator;
 import com.igeeksky.xcache.core.extend.Serializer;
+import com.igeeksky.xcache.core.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,39 +26,64 @@ public class RedisCacheStore<K, V> implements CacheStore<K, V> {
     private Charset charset = StandardCharsets.UTF_8;
     private RedisClientProxy redisClient;
 
-    private KeyGenerator<String, K> keyGenerator;
+    private KeyGenerator<K, K> keyGenerator;
     private Serializer<V> valueSerializer;
 
     @Override
     public Mono<CacheValue<V>> get(K key) {
-        // TODO 判断使用 Hash 还是 String 保存数据
         // TODO 判断是否要压缩
         // TODO 判断value 是否为指定字符串空值
         // TODO 判断是否要加前缀
-        String stringKey = serializeKey(key);
-        return redisClient.get(stringKey).map(this::deserializeValue).map(this::toCacheValue);
+        byte[] stringKey = deConvertKey(key);
+        return redisClient.get(stringKey).map(this::convertValue).map(this::toCacheValue);
     }
 
     @Override
     public Flux<KeyValue<K, CacheValue<V>>> getAll(Set<? extends K> keys) {
-        // TODO 判空
-        return redisClient.mget(toStringKeys(keys))
-                .map(kv -> new KeyValue<>(deserializeKey(kv.getKey()), toCacheValue(deserializeValue(kv.getValue()))));
+        if (CollectionUtils.isNotEmpty(keys)) {
+            return redisClient.mget(toStringKeys(keys))
+                    .map(kv -> new KeyValue<>(convertKey(kv.getKey()), toCacheValue(convertValue(kv.getValue()))));
+        }
+        return Flux.empty();
     }
 
     @Override
-    public Mono<CacheValue<V>> put(K key, Mono<V> value) {
-        return null;
+    public Mono<CacheValue<V>> put(K key, Mono<V> valueMono) {
+        return valueMono.flatMap(value -> {
+            byte[] strKey = deConvertKey(key);
+            byte[] strValue = deConvertValue(value);
+            if (null != strKey && null != strValue) {
+                return redisClient.set(strKey, strValue).then(Mono.just(toCacheValue(value)));
+            }
+            return Mono.empty();
+        });
     }
 
     @Override
-    public Mono<Void> putAll(Mono<Map<? extends K, ? extends V>> keyValues) {
-        return null;
+    public Mono<Void> putAll(Mono<Map<? extends K, ? extends V>> keyValuesMono) {
+        return keyValuesMono.flatMap(keyValues -> {
+            Map<byte[], byte[]> keyValuesMap = new HashMap<>(keyValues.size());
+            keyValues.forEach((key, value) -> {
+                byte[] strKey = deConvertKey(key);
+                byte[] strValue = deConvertValue(value);
+                if (null != strKey && null != strValue) {
+                    keyValuesMap.put(strKey, strValue);
+                }
+            });
+            if (CollectionUtils.isNotEmpty(keyValuesMap)) {
+                return redisClient.mset(keyValuesMap);
+            }
+            return Mono.empty();
+        });
     }
 
     @Override
-    public Mono<CacheValue<V>> remove(K key) {
-        return null;
+    public Mono<Void> remove(K key) {
+        byte[] strKey = deConvertKey(key);
+        if (null != strKey) {
+            return redisClient.del(strKey).then();
+        }
+        return Mono.empty();
     }
 
     @Override
@@ -65,44 +91,33 @@ public class RedisCacheStore<K, V> implements CacheStore<K, V> {
         throw new UnsupportedOperationException("redis string cache don't support clear operation");
     }
 
-    private V deserializeValue(String redisValue) {
-        return valueSerializer.deserialize(redisValue.getBytes(charset));
+    private V convertValue(byte[] redisValue) {
+        return valueSerializer.deserialize(redisValue);
     }
 
-    private String serializeValue(V value) {
-        return new String(valueSerializer.serialize(value), charset);
+    private byte[] deConvertValue(V value) {
+        return valueSerializer.serialize(value);
     }
 
-    private String serializeKey(K key) {
-        return keyGenerator.deConvert(key);
+    private byte[] deConvertKey(K key) {
+        return keyGenerator.serialize(key);
     }
 
-    private K deserializeKey(String key) {
-        return keyGenerator.convert(key);
+    private K convertKey(byte[] key) {
+        return keyGenerator.deSerialize(key);
     }
 
     private CacheValue<V> toCacheValue(V value) {
         return new SimpleCacheValue<>(value);
     }
 
-    private Map<K, CacheValue<V>> toCacheValueMap(List<KeyValue<String, String>> keyValues) {
-        Map<K, CacheValue<V>> cacheValueMap = new HashMap<>(keyValues.size());
-        keyValues.forEach(kv -> {
-            if (null != kv) {
-                V value = deserializeValue(kv.getValue());
-                cacheValueMap.put(deserializeKey(kv.getKey()), toCacheValue(value));
-            }
-        });
-        return cacheValueMap;
-    }
-
-    private String[] toStringKeys(Set<? extends K> keys) {
-        String[] stringKeys = new String[keys.size()];
+    private byte[][] toStringKeys(Set<? extends K> keys) {
+        byte[][] keyArray = new byte[keys.size()][];
         int i = 0;
         for (K key : keys) {
-            stringKeys[i] = serializeKey(key);
+            keyArray[i] = deConvertKey(key);
             i++;
         }
-        return stringKeys;
+        return keyArray;
     }
 }

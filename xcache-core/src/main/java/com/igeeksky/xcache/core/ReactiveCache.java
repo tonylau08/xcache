@@ -5,6 +5,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 /**
  * @author Patrick.Lau
@@ -12,14 +13,24 @@ import java.util.Set;
  */
 public interface ReactiveCache<K, V> {
 
-    Mono<CacheValue<V>> reactiveGet(K key);
+    Mono<CacheValue<V>> get(K key);
 
-    Flux<KeyValue<K, CacheValue<V>>> reactiveGetAll(Set<? extends K> keys);
+    Mono<CacheValue<V>> get(K key, Callable<V> loader);
 
-    Mono<Void> reactivePutAll(Mono<Map<? extends K, ? extends V>> keyValues);
+    Flux<KeyValue<K, CacheValue<V>>> getAll(Set<? extends K> keys);
 
-    Mono<Void> reactivePut(K key, Mono<V> value);
+    Mono<Void> putAll(Mono<Map<? extends K, ? extends V>> keyValues);
 
-    Mono<Void> reactiveRemove(K key);
+    Mono<Void> put(K key, Mono<V> value);
+
+    Mono<Void> remove(K key);
+
+    void clear();
+
+    default Mono<Boolean> containsKey(K key) {
+        return Mono.just(Boolean.TRUE);
+    }
+
+
 
 }

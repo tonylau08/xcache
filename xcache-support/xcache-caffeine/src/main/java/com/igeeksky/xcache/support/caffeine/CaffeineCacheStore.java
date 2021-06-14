@@ -59,8 +59,8 @@ public class CaffeineCacheStore<K, V> implements CacheStore<K, V> {
     }
 
     @Override
-    public Mono<CacheValue<V>> remove(K key) {
-        return Mono.justOrEmpty(cache.asMap().remove(key));
+    public Mono<Void> remove(K key) {
+        return Mono.justOrEmpty(cache.asMap().remove(key)).then();
     }
 
     @Override

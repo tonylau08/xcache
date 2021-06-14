@@ -9,9 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CompositeCacheManager implements CacheManager {
 
-    private CacheManager firstCacheManager;
-    private CacheManager secondCacheManager;
-    protected ConcurrentHashMap<String, XCache> caches;
+    private final CacheManager firstCacheManager;
+    private final CacheManager secondCacheManager;
+    protected ConcurrentHashMap<String, Cache<?, ?>> caches;
 
     public CompositeCacheManager(CacheManager firstCacheManager, CacheManager secondCacheManager) {
         this.firstCacheManager = firstCacheManager;
@@ -19,16 +19,16 @@ public class CompositeCacheManager implements CacheManager {
     }
 
     @Override
-    public XCache get(String name) {
+    public Cache<?, ?> get(String name) {
         return caches.computeIfAbsent(name, key -> {
-            XCache firstCache = firstCacheManager.get(key);
-            XCache secondCache = secondCacheManager.get(key);
+            Cache<?, ?> firstCache = firstCacheManager.get(key);
+            Cache<?, ?> secondCache = secondCacheManager.get(key);
             return new CompositeCache(name, firstCache, secondCache);
         });
     }
 
     @Override
-    public Collection<XCache> getAll() {
+    public Collection<Cache> getAll() {
         return null;
     }
 
