@@ -8,7 +8,9 @@ import java.util.Collection;
  */
 public interface CacheManager {
 
-    Cache get(String name);
+    Cache<Object, Object> get(String name);
+
+    <K, V> Cache<K, V> get(String name, Class<K> keyClazz, Class<V> valueClazz);
 
     Collection<Cache> getAll();
 

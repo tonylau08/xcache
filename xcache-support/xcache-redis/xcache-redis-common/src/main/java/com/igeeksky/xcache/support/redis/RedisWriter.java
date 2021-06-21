@@ -1,21 +1,19 @@
 package com.igeeksky.xcache.support.redis;
 
-
+import com.igeeksky.xcache.core.ExpiryKeyValue;
 import com.igeeksky.xcache.core.KeyValue;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Patrick.Lau
  * @date 2021-06-03
  */
-public interface RedisClientProxy {
+public interface RedisWriter extends AutoCloseable {
 
-    static final String OK = "OK";
+    String OK = "OK";
 
     Mono<byte[]> get(byte[] key);
 
@@ -23,7 +21,11 @@ public interface RedisClientProxy {
 
     Mono<Void> set(byte[] key, byte[] value);
 
+    Mono<Void> psetex(byte[] key, long milliseconds, byte[] value);
+
     Mono<Void> mset(Map<byte[], byte[]> keyValues);
+
+    Mono<Void> mpsetex(ExpiryKeyValue<byte[], byte[]>... keyValues);
 
     Mono<Long> del(byte[]... keys);
 
@@ -36,5 +38,7 @@ public interface RedisClientProxy {
     Mono<Void> hmset(byte[] key, Map<byte[], byte[]> map);
 
     Mono<Long> hdel(byte[] key, byte[]... fields);
+
+    Mono<Void> reactiveClose();
 
 }

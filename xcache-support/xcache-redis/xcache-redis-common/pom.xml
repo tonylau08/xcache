@@ -16,6 +16,10 @@
             <groupId>com.igeeksky.xcache</groupId>
             <artifactId>xcache-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.igeeksky.xcache</groupId>
+            <artifactId>xcache-serializer-jackson</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

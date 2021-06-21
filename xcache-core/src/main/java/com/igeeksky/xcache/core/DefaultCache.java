@@ -4,17 +4,17 @@ import com.igeeksky.xcache.core.extend.LockSupport;
 import com.igeeksky.xcache.core.refresh.RefreshCache;
 import com.igeeksky.xcache.core.refresh.RefreshEvent;
 import com.igeeksky.xcache.core.statistic.CacheStatisticsHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.igeeksky.xcache.core.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * @author Patrick.Lau
@@ -22,35 +22,38 @@ import java.util.function.Predicate;
  */
 public class DefaultCache<K, V> implements Cache<K, V>, RefreshCache {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultCache.class);
-
     private final String name;
 
-    protected final Function<K, V> loadFunction;
+    protected final Function<K, V> loader;
 
-    protected Predicate<K> containsPredicate;
+    protected BiPredicate<String, K> containsPredicate = new BiPredicate<String, K>() {
+        @Override
+        public boolean test(String name, K key) {
+            return true;
+        }
+    };
 
     protected LockSupport<K> lockSupport;
 
     protected CacheStore<K, V> cacheStore;
 
-    protected boolean allowRecord;
+    protected boolean allowRecord = false;
 
     protected boolean allowNullValue;
 
     protected CacheStatisticsHolder statisticsHolder;
 
-    private SyncCache<K, V> syncCache;
+    private volatile SyncCache<K, V> syncCache;
 
-    private AsyncCache<K, V> asyncCache;
+    private volatile AsyncCache<K, V> asyncCache;
 
     private final Object lock = new Object();
 
-    public DefaultCache(String name, CacheStore<K, V> cacheStore, Function<K, V> loadFunction, CacheStatisticsHolder statisticsHolder) {
-        this.name = name;
-        this.cacheStore = cacheStore;
-        this.loadFunction = loadFunction;
-        this.statisticsHolder = statisticsHolder;
+    public DefaultCache(CacheConfig<K, V> cacheConfig) {
+        this.name = cacheConfig.getName();
+        this.cacheStore = cacheConfig.getCacheStore();
+        this.loader = cacheConfig.getLoader();
+        this.statisticsHolder = cacheConfig.getStatisticsHolder();
     }
 
     @Override
@@ -60,6 +63,9 @@ public class DefaultCache<K, V> implements Cache<K, V>, RefreshCache {
 
     @Override
     public Mono<CacheValue<V>> get(K key) {
+        if (null == key) {
+            return Mono.error(new NullPointerException("key must not be null."));
+        }
         return doGet(key).doOnNext(cacheValue -> {
             if (allowRecord) {
                 statisticsHolder.recordGets(cacheValue);
@@ -69,25 +75,18 @@ public class DefaultCache<K, V> implements Cache<K, V>, RefreshCache {
 
     @Override
     public Mono<CacheValue<V>> get(K key, Callable<V> valueLoader) {
-        return get(key).flatMap(cacheValue -> {
-            if (null != cacheValue) {
-                return Mono.just(cacheValue);
-            }
-            if (containsPredicate.test(key)) {
-                Lock keyLock = lockSupport.getLock(key);
-                return Mono.just(keyLock)
-                        .doOnNext(lock -> lock.lock())
-                        .flatMap(lock -> this.doGet(key).flatMap(cacheValue2 -> {
-                                    if (cacheValue2 != null) {
-                                        return Mono.just(cacheValue2);
-                                    }
-                                    return Mono.fromCallable(valueLoader)
-                                            .flatMap(v -> doPut(key, Mono.justOrEmpty(v)));
-                                })
-                        ).doFinally(s -> keyLock.unlock());
-            }
-            return Mono.empty();
-        });
+        if (null == key) {
+            return Mono.error(new NullPointerException("key must not be null."));
+        }
+        Lock keyLock = lockSupport.getLock(key);
+        return get(key)
+                .filter(cacheValue -> (null == cacheValue) && (containsPredicate.test(name, key)))
+                .doOnNext(cacheValue -> keyLock.lock())
+                .flatMap(cacheValue -> doGet(key))
+                .filter(cacheValue -> cacheValue == null)
+                .flatMap(cacheValue -> Mono.fromCallable(valueLoader))
+                .flatMap(value -> doPut(key, value))
+                .doFinally(s -> keyLock.unlock());
     }
 
     protected Mono<CacheValue<V>> doGet(K key) {
@@ -96,21 +95,46 @@ public class DefaultCache<K, V> implements Cache<K, V>, RefreshCache {
 
     @Override
     public Flux<KeyValue<K, CacheValue<V>>> getAll(Set<? extends K> keys) {
+        if (CollectionUtils.isEmpty(keys)) {
+            return Flux.empty();
+        }
         return cacheStore.getAll(keys);
     }
 
     @Override
+    public Mono<Void> put(K key, Mono<V> value) {
+        if (null == key) {
+            return Mono.error(new NullPointerException("key must not be null."));
+        }
+        return value.flatMap(v -> doPut(key, v)).then();
+    }
+
+    @Override
     public Mono<Void> putAll(Mono<Map<? extends K, ? extends V>> keyValues) {
+        keyValues.filter(CollectionUtils::isNotEmpty).map(map -> {
+            Iterator<? extends Map.Entry<? extends K, ? extends V>> it = map.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<? extends K, ? extends V> entry = it.next();
+                K key = entry.getKey();
+                if (null == key) {
+                    it.remove();
+                    continue;
+                }
+                V value = entry.getValue();
+                if (null == value && !allowNullValue) {
+                    it.remove();
+                }
+            }
+            return map;
+        });
         return cacheStore.putAll(keyValues);
     }
 
     @Override
-    public Mono<Void> put(K key, Mono<V> value) {
-        return doPut(key, value).then();
-    }
-
-    @Override
     public Mono<Void> remove(K key) {
+        if (null == key) {
+            return Mono.error(new NullPointerException("key must not be null."));
+        }
         return cacheStore.remove(key).then();
     }
 
@@ -148,11 +172,11 @@ public class DefaultCache<K, V> implements Cache<K, V>, RefreshCache {
         return asyncCache;
     }
 
-    protected Mono<CacheValue<V>> doPut(K key, Mono<V> value) {
-        // TODO 过期时间随机？
-        // TODO 空值缓存，过期时间短
-        return value.filter(v -> (v != null || allowNullValue))
-                .flatMap(v -> cacheStore.put(key, Mono.justOrEmpty(v)));
+    protected Mono<CacheValue<V>> doPut(K key, V value) {
+        if (null != value || allowNullValue) {
+            return cacheStore.put(key, value);
+        }
+        return Mono.empty();
     }
 
 }

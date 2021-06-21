@@ -16,4 +16,9 @@ public class SimpleCacheValue<V> implements CacheValue<V> {
     public V getValue() {
         return this.value;
     }
+
+    @Override
+    public boolean hasValue() {
+        return null != this.value;
+    }
 }

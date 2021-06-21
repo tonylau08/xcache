@@ -1,8 +1,11 @@
 package com.igeeksky.xcache.core;
 
+import com.igeeksky.xcache.core.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -11,65 +14,93 @@ import java.util.concurrent.Callable;
  * @author Patrick.Lau
  * @date 2021-06-03
  */
-public class CompositeCache<K, V> implements Cache<K, V> {
+public class CompositeCache<K, V> extends AbstractCache<K, V> {
 
-    private final String name;
     private final Cache<K, V> firstCache;
     private final Cache<K, V> secondCache;
 
     public CompositeCache(String name, Cache<K, V> firstCache, Cache<K, V> secondCache) {
-        this.name = name;
+        super(name);
         this.firstCache = firstCache;
         this.secondCache = secondCache;
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
     public Mono<CacheValue<V>> get(K key) {
-        return null;
+        if (null == key) {
+            return Mono.error(new NullPointerException("key must not be null."));
+        }
+        return firstCache.get(key).switchIfEmpty(
+                secondCache.get(key)
+                        .doOnNext(cacheValue -> firstCache.put(key, Mono.justOrEmpty(cacheValue.getValue())))
+        );
     }
 
     @Override
     public Mono<CacheValue<V>> get(K key, Callable<V> loader) {
-        return null;
+        if (null == key) {
+            return Mono.error(new NullPointerException("key must not be null."));
+        }
+        return firstCache.get(key).switchIfEmpty(
+                secondCache.get(key, loader)
+                        .doOnNext(cacheValue -> firstCache.put(key, Mono.justOrEmpty(cacheValue.getValue())))
+        );
     }
 
     @Override
     public Flux<KeyValue<K, CacheValue<V>>> getAll(Set<? extends K> keys) {
-        return null;
+        if (CollectionUtils.isEmpty(keys)) {
+            return Flux.empty();
+        }
+
+        Set<K> keySet = new HashSet<>(keys);
+        return firstCache.getAll(keySet)
+                .doOnNext(kv -> keySet.remove(kv.getKey()))
+                .collect(() -> new ArrayList<KeyValue<K, CacheValue<V>>>(keySet.size()), ArrayList::add)
+                .flatMapMany(firstList -> Flux.fromIterable(firstList)
+                        .concatWith(
+                                secondCache.getAll(keySet).doOnNext(kv -> {
+                                    CacheValue<V> cacheValue = kv.getValue();
+                                    if (null != cacheValue) {
+                                        firstCache.put(kv.getKey(), Mono.justOrEmpty(cacheValue.getValue()));
+                                    }
+                                })
+                        ));
     }
 
     @Override
     public Mono<Void> putAll(Mono<Map<? extends K, ? extends V>> keyValues) {
-        return null;
+        return keyValues.filter(CollectionUtils::isNotEmpty)
+                .flatMap(kvs -> {
+                    Mono<Void> second = secondCache.putAll(Mono.just(kvs));
+                    Mono<Void> first = firstCache.putAll(Mono.just(kvs));
+                    return second.mergeWith(first).then();
+                });
     }
 
     @Override
     public Mono<Void> put(K key, Mono<V> value) {
-        return null;
+        if (null == key) {
+            return Mono.error(new NullPointerException("key must not be null."));
+        }
+        return value.flatMap(v -> {
+            Mono<Void> second = secondCache.put(key, Mono.justOrEmpty(v));
+            Mono<Void> first = firstCache.put(key, Mono.justOrEmpty(v));
+            return second.mergeWith(first).then();
+        });
     }
 
     @Override
     public Mono<Void> remove(K key) {
-        return null;
+        if (null == key) {
+            return Mono.error(new NullPointerException("key must not be null."));
+        }
+        return secondCache.remove(key).mergeWith(v -> firstCache.remove(key)).then();
     }
 
     @Override
     public void clear() {
-
-    }
-
-    @Override
-    public SyncCache<K, V> sync() {
-        return null;
-    }
-
-    @Override
-    public AsyncCache<K, V> async() {
-        return null;
+        firstCache.clear();
+        secondCache.clear();
     }
 }

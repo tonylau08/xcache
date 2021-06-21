@@ -14,8 +14,10 @@
         <reactor-core.version>3.3.17.RELEASE</reactor-core.version>
         <caffeine.version>2.8.8</caffeine.version>
         <lettuce-core.version>6.1.2.RELEASE</lettuce-core.version>
+        <redisson.version>3.15.6</redisson.version>
         <jackson.version>2.8.3</jackson.version>
         <slf4j.version>1.7.29</slf4j.version>
+        <log4j2.version>2.14.1</log4j2.version>
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
         <jetbrains-annotations.version>17.0.0</jetbrains-annotations.version>
         <revision>0.0.3-SNAPSHOT</revision>
@@ -99,7 +101,7 @@
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${junit-jupiter.version}</version>
-                <scope>compile</scope>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains</groupId>
@@ -111,19 +113,33 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context-support</artifactId>
                 <version>${spring-context.version}</version>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>io.projectreactor</groupId>
                 <artifactId>reactor-core</artifactId>
                 <version>${reactor-core.version}</version>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>io.lettuce</groupId>
                 <artifactId>lettuce-core</artifactId>
                 <version>${lettuce-core.version}</version>
-                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-bom</artifactId>
+                <version>${log4j2.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

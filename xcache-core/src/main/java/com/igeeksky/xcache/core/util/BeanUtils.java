@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Tony.lau All rights reserved.
+ * Copyright 2017 Patrick.lau All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,7 @@ import java.util.Objects;
 
 /**
  * @author Patrick.Lau
- * @blog: https://my.oschina.net/xcafe
- * @date 2017-03-02 18:28:37
+ * @date 2017-03-02
  */
 public class BeanUtils {
 

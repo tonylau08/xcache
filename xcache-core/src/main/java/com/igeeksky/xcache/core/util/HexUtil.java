@@ -4,7 +4,7 @@ package com.igeeksky.xcache.core.util;
  * 哈希字符串工具类
  *
  * @author Patrick.Lau
- * @date 2017-01-11 23:57:03
+ * @date 2017-01-11
  */
 public class HexUtil {
 

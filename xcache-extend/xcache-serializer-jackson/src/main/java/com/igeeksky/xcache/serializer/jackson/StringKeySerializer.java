@@ -52,8 +52,6 @@ public class StringKeySerializer implements Serializer<Object> {
     }
 
     public StringKeySerializer(ObjectMapper mapper, Charset charset, String classPropertyTypeName) {
-        Objects.requireNonNull(mapper, "ObjectMapper must not be null");
-        Objects.requireNonNull(charset, "Charset must not be null");
         this.mapper = (null == mapper ? new ObjectMapper() : mapper);
         this.charset = (null == charset ? StandardCharsets.UTF_8 : charset);
         if (StringUtils.isNotEmpty(classPropertyTypeName)) {

@@ -8,4 +8,6 @@ public interface CacheValue<V> {
 
     V getValue();
 
+    boolean hasValue();
+
 }

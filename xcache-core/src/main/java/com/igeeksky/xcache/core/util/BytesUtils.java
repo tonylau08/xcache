@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Tony.lau All rights reserved.
+ * Copyright 2017 Patrick.lau All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 /**
  * @author Patrick.Lau
- * @date 2017-03-01 05:09:16
+ * @date 2017-03-01
  */
 public class BytesUtils {
 

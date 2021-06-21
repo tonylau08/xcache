@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Tony.lau All rights reserved.
+ * Copyright 2017 Patrick.lau All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,8 @@
 package com.igeeksky.xcache.core.util;
 
 /**
- * @author Tony.Lau
- * @blog: https://my.oschina.net/xcafe
- * @date 2017-02-28 15:59:37
+ * @author Patrick.Lau
+ * @date 2017-02-28
  */
 public class NumUtils {
 

@@ -19,6 +19,10 @@ public class KeyValue<K, V> {
         this.value = value;
     }
 
+    public boolean hasValue() {
+        return null != value;
+    }
+
     public K getKey() {
         return key;
     }

@@ -6,7 +6,7 @@ import java.security.MessageDigest;
  * 摘要算法工具类
  *
  * @author Patrick.Lau
- * @date 2017-01-12 00:01:13
+ * @date 2017-01-12
  */
 public class DigestUtils {
 

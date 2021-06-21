@@ -1,5 +1,6 @@
 package com.igeeksky.xcache.core.util;
 
+
 public class StringUtils {
 
     private StringUtils() {

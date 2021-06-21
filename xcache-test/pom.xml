@@ -14,12 +14,24 @@
     <dependencies>
         <dependency>
             <groupId>com.igeeksky.xcache</groupId>
-            <artifactId>xcache-core</artifactId>
+            <artifactId>xcache-redis-lettuce</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.igeeksky.xcache</groupId>
+            <artifactId>xcache-caffeine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.igeeksky.xcache</groupId>
+            <artifactId>xcache-serializer-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.igeeksky.xcache</groupId>
+            <artifactId>xcache-spring</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

@@ -20,6 +20,10 @@ public abstract class CollectionUtils {
         return (collection == null || collection.isEmpty());
     }
 
+    public static boolean isEmpty(Map<?, ?> map) {
+        return (map == null || map.isEmpty());
+    }
+
     public static boolean isNotEmpty(Collection<?> collection) {
         return (collection != null && !collection.isEmpty());
     }

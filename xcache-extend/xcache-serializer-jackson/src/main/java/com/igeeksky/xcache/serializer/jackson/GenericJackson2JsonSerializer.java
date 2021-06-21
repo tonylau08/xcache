@@ -26,10 +26,11 @@ import com.igeeksky.xcache.core.util.BytesUtils;
 import com.igeeksky.xcache.core.util.StringUtils;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
- * @author Tony.Lau
+ * @author Patrick.Lau
  * @blog: https://my.oschina.net/xcafe
  * @createTime 2017-03-06 20:38:33
  */
@@ -40,23 +41,20 @@ public class GenericJackson2JsonSerializer implements ValueSerializer<Object> {
     private final Charset charset;
 
     public GenericJackson2JsonSerializer() {
-        this(new ObjectMapper(), Charset.forName("UTF8"), (String) null);
+        this(null, null, null);
     }
 
     public GenericJackson2JsonSerializer(Charset charset) {
-        this(new ObjectMapper(), charset, (String) null);
+        this(null, charset, null);
     }
 
     public GenericJackson2JsonSerializer(ObjectMapper mapper) {
-        this(mapper, Charset.forName("UTF8"), (String) null);
+        this(mapper, null, null);
     }
 
     public GenericJackson2JsonSerializer(ObjectMapper mapper, Charset charset, String classPropertyTypeName) {
-        Objects.requireNonNull(mapper, "ObjectMapper must not be null");
-        Objects.requireNonNull(charset, "Charset must not be null");
-
-        this.mapper = mapper;
-        this.charset = charset;
+        this.mapper = (null != mapper ? mapper : new ObjectMapper());
+        this.charset = (null != charset ? charset : StandardCharsets.UTF_8);
         if (StringUtils.isNotEmpty(classPropertyTypeName)) {
             mapper.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, classPropertyTypeName);
         } else {

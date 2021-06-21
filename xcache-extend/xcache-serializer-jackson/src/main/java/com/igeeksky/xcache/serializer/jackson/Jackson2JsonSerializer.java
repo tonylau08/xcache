@@ -17,7 +17,6 @@
 package com.igeeksky.xcache.serializer.jackson;
 
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,13 +25,13 @@ import com.igeeksky.xcache.core.exception.SerializationFailedException;
 import com.igeeksky.xcache.core.extend.ValueSerializer;
 import com.igeeksky.xcache.core.util.BytesUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 
 /**
- * @author Tony.Lau
- * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-03-06 20:38:33
+ * @author Patrick.Lau
+ * @date 2017-03-06 20:38:33
  */
 public class Jackson2JsonSerializer<T> implements ValueSerializer<T> {
 
@@ -55,6 +54,9 @@ public class Jackson2JsonSerializer<T> implements ValueSerializer<T> {
     public byte[] serialize(Object obj) {
         if (obj == null) {
             return BytesUtils.EMPTY_BYTES;
+        }
+        if (obj instanceof String) {
+            return ((String) obj).getBytes(StandardCharsets.UTF_8);
         }
         try {
             return mapper.writeValueAsBytes(obj);
