@@ -69,16 +69,6 @@ public class CompositeCache<K, V> extends AbstractCache<K, V> {
     }
 
     @Override
-    public Mono<Void> putAll(Mono<Map<? extends K, ? extends V>> keyValues) {
-        return keyValues.filter(CollectionUtils::isNotEmpty)
-                .flatMap(kvs -> {
-                    Mono<Void> second = secondCache.putAll(Mono.just(kvs));
-                    Mono<Void> first = firstCache.putAll(Mono.just(kvs));
-                    return second.mergeWith(first).then();
-                });
-    }
-
-    @Override
     public Mono<Void> put(K key, Mono<V> value) {
         if (null == key) {
             return Mono.error(new NullPointerException("key must not be null."));
@@ -88,6 +78,16 @@ public class CompositeCache<K, V> extends AbstractCache<K, V> {
             Mono<Void> first = firstCache.put(key, Mono.justOrEmpty(v));
             return second.mergeWith(first).then();
         });
+    }
+
+    @Override
+    public Mono<Void> putAll(Mono<Map<? extends K, ? extends V>> keyValues) {
+        return keyValues.filter(CollectionUtils::isNotEmpty)
+                .flatMap(kvs -> {
+                    Mono<Void> second = secondCache.putAll(Mono.just(kvs));
+                    Mono<Void> first = firstCache.putAll(Mono.just(kvs));
+                    return second.mergeWith(first).then();
+                });
     }
 
     @Override
