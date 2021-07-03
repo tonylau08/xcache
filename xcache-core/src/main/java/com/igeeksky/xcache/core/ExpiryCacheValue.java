@@ -1,8 +1,8 @@
 package com.igeeksky.xcache.core;
 
 /**
- * @author: Patrick.Lau
- * @date: 2021-06-16
+ * @author Patrick.Lau
+ * @date 2021-06-16
  */
 public class ExpiryCacheValue<V> extends SimpleCacheValue<V> {
 

@@ -6,6 +6,6 @@ package com.igeeksky.xcache.core.refresh;
  */
 public interface RefreshCache {
 
-    void onEvent(RefreshEvent event);
+    void onEvent(RefreshCacheEvent event);
 
 }

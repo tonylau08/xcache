@@ -4,10 +4,7 @@ import com.igeeksky.xcache.core.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
@@ -18,11 +15,13 @@ public class CompositeCache<K, V> extends AbstractCache<K, V> {
 
     private final Cache<K, V> firstCache;
     private final Cache<K, V> secondCache;
+    private final Cache<K, V> thirdCache;
 
     public CompositeCache(String name, Cache<K, V> firstCache, Cache<K, V> secondCache) {
         super(name);
         this.firstCache = firstCache;
         this.secondCache = secondCache;
+        this.thirdCache = null;
     }
 
     @Override
@@ -43,6 +42,7 @@ public class CompositeCache<K, V> extends AbstractCache<K, V> {
         }
         return firstCache.get(key).switchIfEmpty(
                 secondCache.get(key, loader)
+                        .filter(Objects::nonNull)
                         .doOnNext(cacheValue -> firstCache.put(key, Mono.justOrEmpty(cacheValue.getValue())))
         );
     }
@@ -57,15 +57,17 @@ public class CompositeCache<K, V> extends AbstractCache<K, V> {
         return firstCache.getAll(keySet)
                 .doOnNext(kv -> keySet.remove(kv.getKey()))
                 .collect(() -> new ArrayList<KeyValue<K, CacheValue<V>>>(keySet.size()), ArrayList::add)
-                .flatMapMany(firstList -> Flux.fromIterable(firstList)
-                        .concatWith(
-                                secondCache.getAll(keySet).doOnNext(kv -> {
-                                    CacheValue<V> cacheValue = kv.getValue();
-                                    if (null != cacheValue) {
-                                        firstCache.put(kv.getKey(), Mono.justOrEmpty(cacheValue.getValue()));
-                                    }
-                                })
-                        ));
+                .flatMapMany(
+                        firstList -> Flux.fromIterable(firstList)
+                                .concatWith(
+                                        secondCache.getAll(keySet)
+                                                .doOnNext(kv -> {
+                                                    CacheValue<V> cacheValue = kv.getValue();
+                                                    if (null != cacheValue) {
+                                                        firstCache.put(kv.getKey(), Mono.justOrEmpty(cacheValue.getValue()));
+                                                    }
+                                                })
+                                ));
     }
 
     @Override
@@ -102,5 +104,10 @@ public class CompositeCache<K, V> extends AbstractCache<K, V> {
     public void clear() {
         firstCache.clear();
         secondCache.clear();
+    }
+
+    @Override
+    public CacheLevel getCacheLevel() {
+        return null;
     }
 }

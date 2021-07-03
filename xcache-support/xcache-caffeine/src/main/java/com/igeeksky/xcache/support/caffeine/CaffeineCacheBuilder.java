@@ -2,8 +2,11 @@ package com.igeeksky.xcache.support.caffeine;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.igeeksky.xcache.core.*;
+import com.igeeksky.xcache.core.config.CacheConfig;
 import com.igeeksky.xcache.core.statistic.CacheStatisticsHolder;
+import com.igeeksky.xcache.core.statistic.CacheStatisticsPublisher;
 
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 /**
@@ -35,6 +38,16 @@ public class CaffeineCacheBuilder implements CacheBuilder {
             }
 
             @Override
+            public String getNamespace() {
+                return null;
+            }
+
+            @Override
+            public CacheLevel getCacheLevel() {
+                return null;
+            }
+
+            @Override
             public CacheStore<K, V> getCacheStore() {
                 return cacheStore;
             }
@@ -45,9 +58,20 @@ public class CaffeineCacheBuilder implements CacheBuilder {
             }
 
             @Override
-            public CacheStatisticsHolder getStatisticsHolder() {
+            public CacheStatisticsHolder getCacheStatisticsHolder() {
                 return null;
             }
+
+            @Override
+            public BiPredicate<String, K> getContainsPredicate() {
+                return null;
+            }
+
+            @Override
+            public CacheStatisticsPublisher getStatisticsPublisher() {
+                return null;
+            }
+
         };
         return new DefaultCache<>(cacheConfig);
     }

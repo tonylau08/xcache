@@ -9,6 +9,8 @@ public interface Cache<K, V> extends ReactiveCache<K, V> {
 
     String getName();
 
+    CacheLevel getCacheLevel();
+
     SyncCache<K, V> sync();
 
     AsyncCache<K, V> async();

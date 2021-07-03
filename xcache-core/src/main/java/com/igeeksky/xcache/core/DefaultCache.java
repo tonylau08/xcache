@@ -1,8 +1,9 @@
 package com.igeeksky.xcache.core;
 
+import com.igeeksky.xcache.core.config.CacheConfig;
 import com.igeeksky.xcache.core.extend.LockSupport;
 import com.igeeksky.xcache.core.refresh.RefreshCache;
-import com.igeeksky.xcache.core.refresh.RefreshEvent;
+import com.igeeksky.xcache.core.refresh.RefreshCacheEvent;
 import com.igeeksky.xcache.core.statistic.CacheStatisticsHolder;
 import com.igeeksky.xcache.core.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -22,7 +23,14 @@ import java.util.function.Function;
  */
 public class DefaultCache<K, V> implements Cache<K, V>, RefreshCache {
 
+
+    private volatile SyncCache<K, V> syncCache;
+
+    private volatile AsyncCache<K, V> asyncCache;
+
     private final String name;
+    private final CacheLevel cacheLevel;
+    private final String namespace;
 
     protected final Function<K, V> loader;
 
@@ -43,22 +51,25 @@ public class DefaultCache<K, V> implements Cache<K, V>, RefreshCache {
 
     protected CacheStatisticsHolder statisticsHolder;
 
-    private volatile SyncCache<K, V> syncCache;
-
-    private volatile AsyncCache<K, V> asyncCache;
-
     private final Object lock = new Object();
 
     public DefaultCache(CacheConfig<K, V> cacheConfig) {
         this.name = cacheConfig.getName();
+        this.cacheLevel = cacheConfig.getCacheLevel();
+        this.namespace = cacheConfig.getNamespace();
         this.cacheStore = cacheConfig.getCacheStore();
         this.loader = cacheConfig.getLoader();
-        this.statisticsHolder = cacheConfig.getStatisticsHolder();
+        this.statisticsHolder = cacheConfig.getCacheStatisticsHolder();
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public CacheLevel getCacheLevel() {
+        return cacheLevel;
     }
 
     @Override
@@ -144,7 +155,7 @@ public class DefaultCache<K, V> implements Cache<K, V>, RefreshCache {
     }
 
     @Override
-    public void onEvent(RefreshEvent event) {
+    public void onEvent(RefreshCacheEvent event) {
 
     }
 

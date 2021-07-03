@@ -8,6 +8,10 @@ import java.util.Collection;
  */
 public interface CacheManager {
 
+    CacheLevel getCacheLevel();
+
+    String getNamespace();
+
     Cache<Object, Object> get(String name);
 
     <K, V> Cache<K, V> get(String name, Class<K> keyClazz, Class<V> valueClazz);

@@ -1,12 +1,10 @@
 package com.igeeksky.xcache.core.compress;
 
-import com.igeeksky.xcache.core.util.BytesUtils;
+import com.igeeksky.xcache.core.extend.compress.GzipCompressor;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Patrick.Lau

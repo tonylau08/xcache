@@ -18,6 +18,7 @@ public class XCacheTest {
     CompositeCacheManager cacheManager = cacheManager();
 
     public CompositeCacheManager cacheManager() {
+        String namespace = "aa";
         CacheBuilder caffeineCacheBuilder = new CaffeineCacheBuilder();
 
         RedisURI redisURI = RedisURI.builder().withHost("127.0.0.1").withPort(6379).build();
@@ -25,8 +26,8 @@ public class XCacheTest {
         RedisWriter lettuceRedisWriter = new LettuceRedisWriter(redisClient);
         RedisCacheBuilder redisCacheBuilder = new RedisCacheBuilder(lettuceRedisWriter);
 
-        DefaultCacheManager firstCacheManager = new DefaultCacheManager(caffeineCacheBuilder);
-        DefaultCacheManager secondCacheManager = new DefaultCacheManager(redisCacheBuilder);
+        DefaultCacheManager firstCacheManager = new DefaultCacheManager(namespace, caffeineCacheBuilder);
+        DefaultCacheManager secondCacheManager = new DefaultCacheManager(namespace, redisCacheBuilder);
         return XCache.newBuilder().firstCacheManager(firstCacheManager).secondCacheManager(secondCacheManager).build();
     }
 

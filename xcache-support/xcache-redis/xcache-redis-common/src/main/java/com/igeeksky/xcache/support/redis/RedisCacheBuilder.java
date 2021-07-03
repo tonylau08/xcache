@@ -1,13 +1,16 @@
 package com.igeeksky.xcache.support.redis;
 
 import com.igeeksky.xcache.core.*;
+import com.igeeksky.xcache.core.config.CacheConfig;
 import com.igeeksky.xcache.core.extend.Serializer;
-import com.igeeksky.xcache.core.extend.SerializerFunction;
+import com.igeeksky.xcache.core.extend.SerializerMapper;
 import com.igeeksky.xcache.core.extend.StringSerializer;
 import com.igeeksky.xcache.core.statistic.CacheStatisticsHolder;
+import com.igeeksky.xcache.core.statistic.CacheStatisticsPublisher;
 import com.igeeksky.xcache.serializer.jackson.Jackson2JsonSerializer;
 
 
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 /**
@@ -18,7 +21,7 @@ public class RedisCacheBuilder implements CacheBuilder {
 
     private final RedisWriter redisWriter;
 
-    private SerializerFunction serializerFunction = Jackson2JsonSerializer::new;
+    private SerializerMapper serializerMapper = Jackson2JsonSerializer::new;
 
     public RedisCacheBuilder(RedisWriter redisWriter) {
         this.redisWriter = redisWriter;
@@ -33,14 +36,14 @@ public class RedisCacheBuilder implements CacheBuilder {
         if (keyClazz.equals(String.class)) {
             return (Serializer<K>) StringSerializer.UTF_8;
         }
-        return serializerFunction.apply(keyClazz);
+        return serializerMapper.apply(keyClazz);
     }
 
     public <V> Serializer<V> valueSerializer(Class<V> valueClazz) {
         if (valueClazz.equals(String.class)) {
             return (Serializer<V>) StringSerializer.UTF_8;
         }
-        return serializerFunction.apply(valueClazz);
+        return serializerMapper.apply(valueClazz);
     }
 
     @Override
@@ -50,6 +53,16 @@ public class RedisCacheBuilder implements CacheBuilder {
             @Override
             public String getName() {
                 return name;
+            }
+
+            @Override
+            public String getNamespace() {
+                return null;
+            }
+
+            @Override
+            public CacheLevel getCacheLevel() {
+                return null;
             }
 
             @Override
@@ -63,9 +76,21 @@ public class RedisCacheBuilder implements CacheBuilder {
             }
 
             @Override
-            public CacheStatisticsHolder getStatisticsHolder() {
+            public CacheStatisticsHolder getCacheStatisticsHolder() {
                 return null;
             }
+
+            @Override
+            public BiPredicate<String, K> getContainsPredicate() {
+                return null;
+            }
+
+            @Override
+            public CacheStatisticsPublisher getStatisticsPublisher() {
+                return null;
+            }
+
+
         };
         return new DefaultCache<>(cacheConfig);
     }

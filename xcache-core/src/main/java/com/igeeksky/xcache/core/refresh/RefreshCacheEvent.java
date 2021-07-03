@@ -1,12 +1,12 @@
 package com.igeeksky.xcache.core.refresh;
 
-import com.igeeksky.xcache.core.Event;
+import com.igeeksky.xcache.core.event.CacheEvent;
 
 /**
  * @author Patrick.Lau
  * @date 2021-06-05
  */
-public class RefreshEvent implements Event {
+public class RefreshCacheEvent implements CacheEvent {
 
     private String src;
 

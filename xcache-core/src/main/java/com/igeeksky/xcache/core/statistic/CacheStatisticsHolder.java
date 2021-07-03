@@ -3,93 +3,60 @@ package com.igeeksky.xcache.core.statistic;
 import com.igeeksky.xcache.core.CacheValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.support.NoOpCache;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * @author: Patrick.Lau
- * @date: 2021-06-11
+ * @author Patrick.Lau
+ * @date 2021-06-11
  */
 public class CacheStatisticsHolder {
 
     private final Logger log = LoggerFactory.getLogger(CacheStatisticsHolder.class);
 
+    private final String namespace;
+    private final String application;
     private final String name;
-    private CacheStatisticsProvider provider;
-    private CacheStatisticsPublisher publisher;
 
-    private final List<CacheStatistics> statisticsList = new LinkedList<>();
-    private AtomicReference<CacheStatistics> reference;
+    private final AtomicReference<CacheStatisticsCounter> reference = new AtomicReference<>(new CacheStatisticsCounter());
 
-    // TODO 定时切换新的缓存统计对象实例
-
-    public CacheStatisticsHolder(String name, CacheStatisticsProvider provider, CacheStatisticsPublisher publisher) {
+    public CacheStatisticsHolder(String namespace, String application, String name) {
+        this.namespace = namespace;
+        this.application = application;
         this.name = name;
-        this.provider = provider;
-        this.publisher = publisher;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void incHits() {
-        try {
-            reference.get().incHits();
-        } catch (Exception e) {
-            log.error("cache statistics error.", e);
-        }
-    }
-
-    public CompletableFuture<Void> asyncIncHits() {
-        return CompletableFuture.runAsync(() -> {
-            incHits();
-        });
-    }
-
-    public void incMisses() {
-        try {
-            reference.get().incMisses();
-        } catch (Exception e) {
-            log.error("cache statistics error.", e);
-        }
-    }
-
-    public CompletableFuture<Void> asyncIncMisses() {
-        return CompletableFuture.runAsync(() -> {
-            incMisses();
-        });
     }
 
     public <V> void recordGets(CacheValue<V> cacheValue) {
-        if (null != cacheValue) {
-            incHits();
+        if (null == cacheValue) {
+            reference.get().incMisses();
+            return;
+        }
+        V value = cacheValue.getValue();
+        if (null != value) {
+            reference.get().incHitsNotNull();
         } else {
-            incMisses();
+            reference.get().incHitsNull();
         }
     }
 
-    public <V> CompletableFuture<CacheValue<V>> asyncRecordGets(CompletableFuture<CacheValue<V>> future) {
-        return future.thenApply(vCacheValue -> {
-            if (null != vCacheValue) {
-                asyncIncHits();
-            } else {
-                asyncIncMisses();
-            }
-            return vCacheValue;
-        });
+    public CacheStatisticsMessage collect() {
+        CacheStatisticsCounter counter = updateCounter();
+        CacheStatisticsMessage message = new CacheStatisticsMessage(namespace, application, name);
+        message.setNotNullHits(counter.getNotNullHits());
+        message.setNullHits(counter.getNullHits());
+        message.setMisses(counter.getMisses());
+        log.debug(message.toString());
+        return message;
     }
 
-    public <K, V> void recordGetAll(Map<K, V> keyValues) {
-        // TODO 统计
+    private CacheStatisticsCounter updateCounter() {
+        CacheStatisticsCounter expectedCounter = reference.get();
+        CacheStatisticsCounter newCounter = new CacheStatisticsCounter();
+        if (reference.compareAndSet(expectedCounter, newCounter)) {
+            return expectedCounter;
+        }
+        return updateCounter();
     }
 
-    public <K, V> Map<K, CompletableFuture<CacheValue<V>>> asyncRecordGetAll(CompletableFuture<Map<K, CacheValue<V>>> futureMap) {
-
-        return null;
-    }
 }

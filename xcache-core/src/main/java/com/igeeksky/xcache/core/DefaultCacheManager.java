@@ -2,7 +2,6 @@ package com.igeeksky.xcache.core;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -12,21 +11,35 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class DefaultCacheManager implements CacheManager {
 
-    protected ConcurrentMap<String, Cache<Object, Object>> caches = new ConcurrentHashMap<>();
+    protected CacheLevel cacheLevel;
+    protected String namespace;
+    protected ConcurrentMap<String, Cache<?, ?>> caches = new ConcurrentHashMap<>();
     protected CacheBuilder cacheBuilder;
 
-    public DefaultCacheManager(CacheBuilder cacheBuilder) {
+    public DefaultCacheManager(String namespace, CacheLevel cacheLevel, CacheBuilder cacheBuilder) {
+        this.namespace = namespace;
+        this.cacheLevel = cacheLevel;
         this.cacheBuilder = cacheBuilder;
     }
 
     @Override
+    public CacheLevel getCacheLevel() {
+        return cacheLevel;
+    }
+
+    @Override
+    public String getNamespace() {
+        return null;
+    }
+
+    @Override
     public Cache<Object, Object> get(String name) {
-        return caches.computeIfAbsent(name, cacheName -> cacheBuilder.build(cacheName));
+        return get(name, Object.class, Object.class);
     }
 
     @Override
     public <K, V> Cache<K, V> get(String name, Class<K> keyClazz, Class<V> valueClazz) {
-        return cacheBuilder.build(name, keyClazz, valueClazz);
+        return (Cache<K, V>) caches.computeIfAbsent(name, k -> cacheBuilder.build(k, keyClazz, valueClazz));
     }
 
     @Override

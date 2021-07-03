@@ -1,5 +1,7 @@
 package com.igeeksky.xcache.core;
 
+import java.util.List;
+
 /**
  * @author Patrick.Lau
  * @date 2021-06-21
@@ -20,7 +22,7 @@ public class XCache {
     }
 
     public CompositeCacheManager build() {
-        return new CompositeCacheManager(firstCacheManager, secondCacheManager);
+        return new CompositeCacheManager(List.of(firstCacheManager, secondCacheManager));
     }
 
     public static XCache newBuilder() {

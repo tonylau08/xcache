@@ -18,8 +18,7 @@ package com.igeeksky.xcache.core.extend;
 
 /**
  * @author Patrick.Lau
- * @blog: https://my.oschina.net/xcafe
- * @createTime 2017-03-05 08:38:30
+ * @date 2017-03-05 08:38:30
  */
 public interface Serializer<T> {
 

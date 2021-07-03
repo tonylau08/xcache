@@ -3,8 +3,8 @@ package com.igeeksky.xcache.core;
 import java.time.Duration;
 
 /**
- * @author: Patrick.Lau
- * @date: 2021-06-18
+ * @author Patrick.Lau
+ * @date 2021-06-18
  */
 public class ExpiryKeyValue<K, V> extends KeyValue<K, V> {
 

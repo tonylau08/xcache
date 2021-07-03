@@ -4,8 +4,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @author: Patrick.Lau
- * @date: 2021-06-20
+ * @author Patrick.Lau
+ * @date 2021-06-20
  */
 public class StringSerializer implements Serializer<String> {
 

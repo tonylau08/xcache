@@ -1,4 +1,4 @@
-package com.igeeksky.xcache.core.compress;
+package com.igeeksky.xcache.core.extend.compress;
 
 import com.igeeksky.xcache.core.util.BytesUtils;
 
@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -15,7 +16,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class GzipCompressor implements Compressor {
 
-    public static final GzipCompressor COMPRESSOR = new GzipCompressor();
+    private static final GzipCompressor COMPRESSOR = new GzipCompressor();
 
     @Override
     public byte[] compress(byte[] source) throws IOException {
@@ -37,6 +38,14 @@ public class GzipCompressor implements Compressor {
                 BytesUtils.copy(decompressor, targetStream);
             }
             return targetStream.toByteArray();
+        }
+    }
+
+    public static class GzipCompressorSupplier implements Supplier<Compressor> {
+
+        @Override
+        public Compressor get() {
+            return GzipCompressor.COMPRESSOR;
         }
     }
 }
